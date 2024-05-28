@@ -1,5 +1,4 @@
 #include "CombatComponent.h"
-
 #include "Engine/SkeletalMeshSocket.h"
 #include "PirateWar/Weapon/Weapon.h"
 #include "PirateWar/Character/PirateCharacter.h"
