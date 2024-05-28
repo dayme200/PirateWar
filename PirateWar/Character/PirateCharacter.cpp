@@ -1,10 +1,11 @@
 #include "PirateCharacter.h"
+#include "Net/UnrealNetwork.h"
 #include "Camera/CameraComponent.h"
+#include "PirateWar/Weapon/Weapon.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "PirateWar/Component/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Net/UnrealNetwork.h"
-#include "PirateWar/Weapon/Weapon.h"
 
 APirateCharacter::APirateCharacter()
 {
@@ -24,6 +25,18 @@ APirateCharacter::APirateCharacter()
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
+
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true);
+}
+
+void APirateCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (Combat)
+	{
+		Combat->Character = this;
+	}
 }
 
 void APirateCharacter::BeginPlay()
@@ -47,6 +60,7 @@ void APirateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("LookUp", this, &APirateCharacter::LookUp);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APirateCharacter::EquipButtonPressed);
 }
 
 void APirateCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -84,6 +98,14 @@ void APirateCharacter::Turn(float Value)
 void APirateCharacter::LookUp(float Value)
 {
 	AddControllerPitchInput(Value);
+}
+
+void APirateCharacter::EquipButtonPressed()
+{
+	if (Combat && HasAuthority())
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
 }
 
 void APirateCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
