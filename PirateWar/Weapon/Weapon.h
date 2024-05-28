@@ -21,6 +21,7 @@ class PIRATEWAR_API AWeapon : public AActor
 public:	
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void ShowPickupWidget(bool bShowWidget);
 
 protected:
@@ -48,10 +49,13 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = WeaponProperties)
 	class USphereComponent* AreaSphere;
 	UPROPERTY(VisibleAnywhere, Category = WeaponProperties)
-	EWeaponState WeaponState;
-	UPROPERTY(VisibleAnywhere, Category = WeaponProperties)
 	class UWidgetComponent* PickupWidget;
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = WeaponProperties)
+	EWeaponState WeaponState;
+	UFUNCTION()
+	void OnRep_WeaponState();
 
 public:
-	FORCEINLINE void SetWeaponState(EWeaponState State) { WeaponState = State; }
+	void SetWeaponState(EWeaponState State);
+	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 };

@@ -1,4 +1,6 @@
 #include "CombatComponent.h"
+
+#include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "PirateWar/Weapon/Weapon.h"
 #include "PirateWar/Character/PirateCharacter.h"
@@ -31,6 +33,5 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 		HandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
 	}
 	EquippedWeapon->SetOwner(Character);
-	EquippedWeapon->ShowPickupWidget(false);
 }
 
