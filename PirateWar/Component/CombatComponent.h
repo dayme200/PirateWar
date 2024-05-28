@@ -15,6 +15,7 @@ public:
 	UCombatComponent();
 	friend class APirateCharacter;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
 	
@@ -23,6 +24,7 @@ protected:
 
 private:
 	class APirateCharacter* Character;
+	UPROPERTY(Replicated)
 	AWeapon* EquippedWeapon;
 
 public:

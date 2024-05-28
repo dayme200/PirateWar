@@ -150,3 +150,8 @@ void APirateCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 		}
 	}
 }
+
+bool APirateCharacter::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+}
