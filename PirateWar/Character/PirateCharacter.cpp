@@ -185,5 +185,5 @@ bool APirateCharacter::IsWeaponEquipped()
 
 bool APirateCharacter::IsAiming()
 {
-	return (Combat && Combat->bIsAiming);
+	return (Combat && Combat->bAiming);
 }

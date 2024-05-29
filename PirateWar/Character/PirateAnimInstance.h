@@ -11,7 +11,7 @@ class PIRATEWAR_API UPirateAnimInstance : public UAnimInstance
 	
 public:
 	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 private:
 	UPROPERTY(BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = true))
@@ -28,4 +28,12 @@ private:
 	bool bIsCrouched;
 	UPROPERTY(BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = true))
 	bool bIsAiming;
+	UPROPERTY(BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = true))
+	float YawOffset;
+	UPROPERTY(BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = true))
+	float Lean;
+
+	FRotator CharacterRotationLastFrame;
+	FRotator CharacterRotation;
+	FRotator DeltaRotation;
 };
