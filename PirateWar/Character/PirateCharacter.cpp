@@ -1,6 +1,7 @@
 #include "PirateCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "PirateWar/Weapon/Weapon.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -26,18 +27,20 @@ APirateCharacter::APirateCharacter()
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
 	
-	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
-	Combat->SetIsReplicated(true);
+	Combat2 = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat2"));
+	Combat2->SetIsReplicated(true);
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
 void APirateCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	if (Combat)
+	if (Combat2)
 	{
-		Combat->Character = this;
+		Combat2->Character = this;
 	}
 }
 
@@ -113,27 +116,27 @@ void APirateCharacter::CrouchButtonPressed()
 
 void APirateCharacter::AimButtonPressed()
 {
-	if (Combat)
+	if (Combat2)
 	{
-		Combat->SetAiming(true);
+		Combat2->SetAiming(true);
 	}
 }
 
 void APirateCharacter::AimButtonReleased()
 {
-	if (Combat)
+	if (Combat2)
 	{
-		Combat->SetAiming(false);
+		Combat2->SetAiming(false);
 	}
 }
 
 void APirateCharacter::EquipButtonPressed()
 {
-	if (Combat)
+	if (Combat2)
 	{
 		if (HasAuthority())
 		{
-			Combat->EquipWeapon(OverlappingWeapon);
+			Combat2->EquipWeapon(OverlappingWeapon);
 		}
 		else
 		{
@@ -144,9 +147,9 @@ void APirateCharacter::EquipButtonPressed()
 
 void APirateCharacter::ServerEquipButtonPressed_Implementation()
 {
-	if (Combat)
+	if (Combat2)
 	{
-		Combat->EquipWeapon(OverlappingWeapon);
+		Combat2->EquipWeapon(OverlappingWeapon);
 	}
 }
 
@@ -180,10 +183,10 @@ void APirateCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 
 bool APirateCharacter::IsWeaponEquipped()
 {
-	return (Combat && Combat->EquippedWeapon);
+	return (Combat2 && Combat2->EquippedWeapon);
 }
 
 bool APirateCharacter::IsAiming()
 {
-	return (Combat && Combat->bAiming);
+	return (Combat2 && Combat2->bAiming);
 }
