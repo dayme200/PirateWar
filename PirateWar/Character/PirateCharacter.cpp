@@ -25,9 +25,11 @@ APirateCharacter::APirateCharacter()
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
-
-	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
 	Combat->SetIsReplicated(true);
+
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 void APirateCharacter::PostInitializeComponents()
@@ -60,6 +62,9 @@ void APirateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("LookUp", this, &APirateCharacter::LookUp);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APirateCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APirateCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APirateCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APirateCharacter::EquipButtonPressed);
 }
 
@@ -98,6 +103,28 @@ void APirateCharacter::Turn(float Value)
 void APirateCharacter::LookUp(float Value)
 {
 	AddControllerPitchInput(Value);
+}
+
+void APirateCharacter::CrouchButtonPressed()
+{
+	if (bIsCrouched) UnCrouch();
+	else Crouch();
+}
+
+void APirateCharacter::AimButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->SetAiming(true);
+	}
+}
+
+void APirateCharacter::AimButtonReleased()
+{
+	if (Combat)
+	{
+		Combat->SetAiming(false);
+	}
 }
 
 void APirateCharacter::EquipButtonPressed()
@@ -154,4 +181,9 @@ void APirateCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 bool APirateCharacter::IsWeaponEquipped()
 {
 	return (Combat && Combat->EquippedWeapon);
+}
+
+bool APirateCharacter::IsAiming()
+{
+	return (Combat && Combat->bIsAiming);
 }

@@ -22,4 +22,6 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsInAir = PirateCharacter->GetCharacterMovement()->IsFalling();
 	bIsAccelerating = PirateCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
 	bWeaponEquipped = PirateCharacter->IsWeaponEquipped();
+	bIsCrouched = PirateCharacter->bIsCrouched;
+	bIsAiming = PirateCharacter->IsAiming();
 }
