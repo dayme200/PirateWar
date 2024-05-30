@@ -23,6 +23,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void ShowPickupWidget(bool bShowWidget);
+	void Fire();
+
+	UPROPERTY(EditAnywhere, Category = WeaponProperties)
+	class UAnimationAsset* FireAnimation;
 
 protected:
 	virtual void BeginPlay() override;
@@ -54,7 +58,7 @@ private:
 	EWeaponState WeaponState;
 	UFUNCTION()
 	void OnRep_WeaponState();
-
+	
 public:
 	void SetWeaponState(EWeaponState State);
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }

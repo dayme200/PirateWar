@@ -27,12 +27,16 @@ protected:
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 
+	void FireButtonPressed(bool bPressed);
+
 private:
 	class APirateCharacter* Character;
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
 	UPROPERTY(Replicated)
 	bool bAiming;
+
+	bool bFireButtonPressed;
 
 	UPROPERTY(EditAnywhere)
 	float BaseWalkSpeed;

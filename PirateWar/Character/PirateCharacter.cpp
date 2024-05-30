@@ -50,6 +50,18 @@ void APirateCharacter::PostInitializeComponents()
 	}
 }
 
+void APirateCharacter::PlayFireMontage(bool bAiming)
+{
+	if (Combat2 == nullptr || Combat2->EquippedWeapon == nullptr) return;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && FireWeaponMontage)
+	{
+		AnimInstance->Montage_Play(FireWeaponMontage);
+		FName SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
 void APirateCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -73,6 +85,8 @@ void APirateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APirateCharacter::Jump);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APirateCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APirateCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &APirateCharacter::FireButtonReleased);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APirateCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APirateCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APirateCharacter::EquipButtonPressed);
@@ -119,6 +133,22 @@ void APirateCharacter::CrouchButtonPressed()
 {
 	if (bIsCrouched) UnCrouch();
 	else Crouch();
+}
+
+void APirateCharacter::FireButtonPressed()
+{
+	if (Combat2)
+	{
+		Combat2->FireButtonPressed(true);
+	}
+}
+
+void APirateCharacter::FireButtonReleased()
+{
+	if (Combat2)
+	{
+		Combat2->FireButtonPressed(false);
+	}
 }
 
 void APirateCharacter::AimButtonPressed()
