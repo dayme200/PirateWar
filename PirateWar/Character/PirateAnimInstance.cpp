@@ -27,6 +27,7 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	EquippedWeapon = PirateCharacter->GetEquippedWeapon();
 	bIsCrouched = PirateCharacter->bIsCrouched;
 	bIsAiming = PirateCharacter->IsAiming();
+	TurningInPlace = PirateCharacter->GetTurningInPlace();
 
 	// Offset Yaw for Strafing
 	FRotator AimRotation = PirateCharacter->GetBaseAimRotation();
