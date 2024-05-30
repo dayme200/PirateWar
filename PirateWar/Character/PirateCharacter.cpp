@@ -223,3 +223,9 @@ bool APirateCharacter::IsAiming()
 {
 	return (Combat2 && Combat2->bAiming);
 }
+
+AWeapon* APirateCharacter::GetEquippedWeapon()
+{
+	if (Combat2 == nullptr) return nullptr;
+	return Combat2->EquippedWeapon;
+}

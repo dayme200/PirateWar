@@ -1,5 +1,6 @@
 #include "PirateAnimInstance.h"
 #include "PirateCharacter.h"
+#include "PirateWar/Weapon/Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -23,6 +24,7 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsInAir = PirateCharacter->GetCharacterMovement()->IsFalling();
 	bIsAccelerating = PirateCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
 	bWeaponEquipped = PirateCharacter->IsWeaponEquipped();
+	EquippedWeapon = PirateCharacter->GetEquippedWeapon();
 	bIsCrouched = PirateCharacter->bIsCrouched;
 	bIsAiming = PirateCharacter->IsAiming();
 
@@ -42,4 +44,14 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	AO_Yaw = PirateCharacter->GetAO_Yaw();
 	AO_Pitch = PirateCharacter->GetAO_Pitch();
+
+	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && PirateCharacter->GetMesh())
+	{
+		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), RTS_World);
+		FVector OutPosition;
+		FRotator OutRotation;
+		PirateCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
+		LeftHandTransform.SetLocation(OutPosition);
+		LeftHandTransform.SetRotation(FQuat(OutRotation));
+	}
 }
