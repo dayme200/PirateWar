@@ -1,7 +1,7 @@
 #include "PirateAnimInstance.h"
 #include "PirateCharacter.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void UPirateAnimInstance::NativeInitializeAnimation()
 {
@@ -39,4 +39,7 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	const float Target = Delta.Yaw / DeltaTime;
 	const float Interp = FMath::FInterpTo(Lean, Target, DeltaTime, 6.f);
 	Lean = FMath::Clamp(Interp, -90.f, 90.f);
+
+	AO_Yaw = PirateCharacter->GetAO_Yaw();
+	AO_Pitch = PirateCharacter->GetAO_Pitch();
 }
