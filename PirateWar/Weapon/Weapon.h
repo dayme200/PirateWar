@@ -58,6 +58,9 @@ private:
 	EWeaponState WeaponState;
 	UFUNCTION()
 	void OnRep_WeaponState();
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACasing> CasingClass;
 	
 public:
 	void SetWeaponState(EWeaponState State);
