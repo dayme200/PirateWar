@@ -4,6 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+#define TRACE_LENGTH 80000
+
 class AWeapon;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -24,15 +26,21 @@ protected:
 	void SetAiming(bool bIsAiming);
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
-	UFUNCTION()
-	void OnRep_EquippedWeapon();
 
 	void FireButtonPressed(bool bPressed);
+	UFUNCTION(Server, Reliable)
+	void ServerFire();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastFire();
+
+	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
 private:
 	class APirateCharacter* Character;
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
 	UPROPERTY(Replicated)
 	bool bAiming;
 

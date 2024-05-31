@@ -242,14 +242,11 @@ void APirateCharacter::EquipButtonPressed()
 {
 	if (Combat2)
 	{
-		if (HasAuthority())
+		if (!HasAuthority())
 		{
 			Combat2->EquipWeapon(OverlappingWeapon);
 		}
-		else
-		{
-			ServerEquipButtonPressed();
-		}
+		ServerEquipButtonPressed();
 	}
 }
 
