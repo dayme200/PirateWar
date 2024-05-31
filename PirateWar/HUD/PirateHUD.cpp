@@ -34,7 +34,7 @@ void APirateHUD::DrawHUD()
 		}
 		if (HUDPackage.CrosshairBottom)
 		{
-			FVector2D Spread(0.f, -SpreadScaled);
+			FVector2D Spread(0.f, SpreadScaled);
 			DrawCrosshair(HUDPackage.CrosshairBottom, ViewportCenter, Spread);
 		}
 	}
