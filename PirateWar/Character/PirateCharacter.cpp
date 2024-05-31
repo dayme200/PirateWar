@@ -301,3 +301,9 @@ AWeapon* APirateCharacter::GetEquippedWeapon()
 	if (Combat2 == nullptr) return nullptr;
 	return Combat2->EquippedWeapon;
 }
+
+FVector APirateCharacter::GetHitTarget() const
+{
+	if (Combat2 == nullptr) return FVector();
+	return Combat2->HitTarget;
+}
