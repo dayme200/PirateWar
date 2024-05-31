@@ -1,4 +1,5 @@
 #include "CombatComponent.h"
+#include "TimerManager.h"
 #include "Net/UnrealNetwork.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -73,6 +74,27 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
+void UCombatComponent::StartFireTimer()
+{
+	if (EquippedWeapon == nullptr || Character == nullptr) return;
+	Character->GetWorld()->GetTimerManager().SetTimer(
+		FireTimer,
+		this,
+		&UCombatComponent::FireTimerFinished,
+		EquippedWeapon->FireDelay
+	);
+}
+
+void UCombatComponent::FireTimerFinished()
+{
+	if (EquippedWeapon == nullptr) return;
+	bCanFire = true;
+	if (bFireButtonPressed && EquippedWeapon->bAutomatic)
+	{
+		Fire();
+	}
+}
+
 void UCombatComponent::InterpFOV(float DeltaTime)
 {
 	if (EquippedWeapon == nullptr) return;
@@ -90,19 +112,26 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 	}
 }
 
+void UCombatComponent::Fire()
+{
+	if (bCanFire)
+	{
+		bCanFire = false;
+		ServerFire(HitTarget);
+		if (EquippedWeapon)
+		{
+			CrosshairShottingFactor = 0.75f;
+		}
+		StartFireTimer();	
+	}
+}
+
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
 	if (bFireButtonPressed)
 	{
-		FHitResult HitResult;
-		TraceUnderCrosshairs(HitResult);
-		ServerFire(HitResult.ImpactPoint);
-
-		if (EquippedWeapon)
-		{
-			CrosshairShottingFactor = 0.75f;
-		}
+		Fire();
 	}
 }
 

@@ -92,4 +92,12 @@ public:
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+
+	/*
+	 * Automatic Fire
+	 */
+	UPROPERTY(EditAnywhere)
+	float FireDelay = .15f;
+	UPROPERTY(EditAnywhere)
+	bool bAutomatic = true;
 };
