@@ -13,6 +13,8 @@ enum class EWeaponState : uint8
 	EWS_MAX UMETA(DisplayName = "Default Max"),
 };
 
+class UTexture2D;
+
 UCLASS()
 class PIRATEWAR_API AWeapon : public AActor
 {
@@ -27,6 +29,20 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = WeaponProperties)
 	class UAnimationAsset* FireAnimation;
+
+	/*
+	 * Textures for the weapon crosshairs
+	 */
+	UPROPERTY(EditAnywhere)
+	UTexture2D* CrosshairCenter;
+	UPROPERTY(EditAnywhere)
+	UTexture2D* CrosshairLeft;
+	UPROPERTY(EditAnywhere)
+	UTexture2D* CrosshairRight;
+	UPROPERTY(EditAnywhere)
+	UTexture2D* CrosshairTop;
+	UPROPERTY(EditAnywhere)
+	UTexture2D* CrosshairBottom;
 
 protected:
 	virtual void BeginPlay() override;

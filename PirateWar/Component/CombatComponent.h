@@ -34,9 +34,13 @@ protected:
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
-
+	void SetHUDCrosshairs(float DeltaTime);
+	
 private:
 	class APirateCharacter* Character;
+	class APiratePlayerController* Controller;
+	class APirateHUD* HUD;
+	
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
 	UFUNCTION()
@@ -50,6 +54,12 @@ private:
 	float BaseWalkSpeed;
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
+
+	/*
+	 * HUD and crosshair
+	 */
+	float CrosshairVelocityFactor;
+	float CrosshairInAirFactor;
 	
 public:
 };
