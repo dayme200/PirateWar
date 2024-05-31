@@ -54,18 +54,18 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		PirateCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
 		LeftHandTransform.SetLocation(OutPosition);
 		LeftHandTransform.SetRotation(FQuat(OutRotation));
-
 		
-		FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
-		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
-		DrawDebugLine(GetWorld(),MuzzleTipTransform.GetLocation(),MuzzleTipTransform.GetLocation()+MuzzleX*1000.f,FColor::Red);
-		DrawDebugLine(GetWorld(),MuzzleTipTransform.GetLocation(),PirateCharacter->GetHitTarget(),FColor::Blue);
+		// FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
+		// FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
+		// DrawDebugLine(GetWorld(),MuzzleTipTransform.GetLocation(),MuzzleTipTransform.GetLocation()+MuzzleX*1000.f,FColor::Red);
+		// DrawDebugLine(GetWorld(),MuzzleTipTransform.GetLocation(),PirateCharacter->GetHitTarget(),FColor::Blue);
 
 		if (PirateCharacter->IsLocallyControlled())
 		{
 			bLocallyControlled = true;
 			FTransform RightHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("hand_r"), ERelativeTransformSpace::RTS_World);
-			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(PirateCharacter->GetHitTarget(), RightHandTransform.GetLocation());
+			FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(PirateCharacter->GetHitTarget(), RightHandTransform.GetLocation());
+			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaTime, 30.f);
 		}
 	}
 }

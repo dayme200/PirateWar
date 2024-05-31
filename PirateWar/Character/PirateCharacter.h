@@ -3,10 +3,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../Type/TurningInPlace.h"
+#include "PirateWar/Interface/InteractWithCrosshairInterface.h"
 #include "PirateCharacter.generated.h"
 
 UCLASS()
-class PIRATEWAR_API APirateCharacter : public ACharacter
+class PIRATEWAR_API APirateCharacter : public ACharacter, public IInteractWithCrosshairInterface
 {
 	GENERATED_BODY()
 
@@ -67,6 +68,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
 
+	void HideCameraIfCharacterClose();
+	float CameraThreshold = 200.f;
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
@@ -76,4 +80,5 @@ public:
 	AWeapon* GetEquippedWeapon();
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FVector GetHitTarget() const;
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
