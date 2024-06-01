@@ -390,6 +390,7 @@ void APirateCharacter::PollInit()
 		if (PiratePlayerState)
 		{
 			PiratePlayerState->AddToScore(0.f);
+			PiratePlayerState->AddToDefeat(0);
 		}
 	}
 }

@@ -113,6 +113,7 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 
+	UPROPERTY()
 	class APiratePlayerController* PiratePlayerController;
 
 	/*
@@ -124,6 +125,7 @@ private:
 	float ElimDelay = 3.f;
 	void ElimTimerFinished();
 
+	UPROPERTY()
 	class APiratePlayerState* PiratePlayerState;
 	
 public:

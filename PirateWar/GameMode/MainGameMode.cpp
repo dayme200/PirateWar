@@ -14,6 +14,10 @@ void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APirate
 	{
 		AttackerPlayerState->AddToScore(1.f);
 	}
+	if (VictimPlayerState)
+	{
+		VictimPlayerState->AddToDefeat(1);
+	}
 	if (ElimmedCharacter)
 	{
 		ElimmedCharacter->Elim();

@@ -44,6 +44,20 @@ void APiratePlayerController::SetHUDScore(float Score)
 	}
 }
 
+void APiratePlayerController::SetHUDDefeat(int32 Defeat)
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->DefeatAmount;
+
+	if (bHUDValid)
+	{
+		FString DefeatText = FString::Printf(TEXT("%d"), Defeat);
+		PirateHUD->CharacterOverlay->DefeatAmount->SetText(FText::FromString(DefeatText));
+	}
+}
+
 void APiratePlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
