@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PirateWar/GameMode/MainGameMode.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
+#include "PirateWar/PlayerState/PiratePlayerState.h"
 
 APirateCharacter::APirateCharacter()
 {
@@ -131,6 +132,7 @@ void APirateCharacter::Tick(float DeltaTime)
 		CalculateAo_Pitch();
 	}
 	HideCameraIfCharacterClose();
+	PollInit();
 }
 
 void APirateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -373,6 +375,22 @@ void APirateCharacter::UpdateHUDHealth()
 	if (PiratePlayerController)
 	{
 		PiratePlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void APirateCharacter::UpdateHUDScore()
+{
+}
+
+void APirateCharacter::PollInit()
+{
+	if (PiratePlayerState == nullptr)
+	{
+		PiratePlayerState = GetPlayerState<APiratePlayerState>();
+		if (PiratePlayerState)
+		{
+			PiratePlayerState->AddToScore(0.f);
+		}
 	}
 }
 

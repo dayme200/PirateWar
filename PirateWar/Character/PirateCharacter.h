@@ -57,6 +57,8 @@ protected:
 		AActor* DamageCauser
 	);
 	void UpdateHUDHealth();
+	void UpdateHUDScore();
+	void PollInit();
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
@@ -121,6 +123,8 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	float ElimDelay = 3.f;
 	void ElimTimerFinished();
+
+	class APiratePlayerState* PiratePlayerState;
 	
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

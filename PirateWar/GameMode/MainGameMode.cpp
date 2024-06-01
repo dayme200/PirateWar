@@ -2,10 +2,18 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "PirateWar/Character/PirateCharacter.h"
+#include "PirateWar/PlayerState/PiratePlayerState.h"
+#include "PirateWar/PlayerController/PiratePlayerController.h"
 
 void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APiratePlayerController* VictimController,
                                      APiratePlayerController* AttackerController)
 {
+	APiratePlayerState* AttackerPlayerState = AttackerController ? Cast<APiratePlayerState>(AttackerController->PlayerState) : nullptr;
+	APiratePlayerState* VictimPlayerState = VictimController ? Cast<APiratePlayerState>(VictimController->PlayerState) : nullptr;
+	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState)
+	{
+		AttackerPlayerState->AddToScore(1.f);
+	}
 	if (ElimmedCharacter)
 	{
 		ElimmedCharacter->Elim();

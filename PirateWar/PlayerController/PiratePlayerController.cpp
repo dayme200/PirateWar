@@ -30,6 +30,20 @@ void APiratePlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 }
 
+void APiratePlayerController::SetHUDScore(float Score)
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->ScoreAmount;
+
+	if (bHUDValid)
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
+		PirateHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
+	}
+}
+
 void APiratePlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

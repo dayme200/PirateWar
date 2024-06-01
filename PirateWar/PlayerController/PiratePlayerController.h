@@ -10,8 +10,9 @@ class PIRATEWAR_API APiratePlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	void SetHUDHealth(float Health, float MaxHealth);
 	virtual void OnPossess(APawn* InPawn) override;
+	void SetHUDHealth(float Health, float MaxHealth);
+	void SetHUDScore(float Score);
 
 protected:
 	virtual void BeginPlay() override;
