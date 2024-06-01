@@ -65,10 +65,10 @@ void APirateCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PiratePlayerController = Cast<APiratePlayerController>(Controller);
-	if (PiratePlayerController)
+	UpdateHUDHealth();
+	if (HasAuthority())
 	{
-		PiratePlayerController->SetHUDHealth(Health, MaxHealth);
+		OnTakeAnyDamage.AddDynamic(this, &APirateCharacter::ReceiveDamage);
 	}
 }
 
@@ -298,6 +298,23 @@ void APirateCharacter::AimOffset(float DeltaTime)
 	CalculateAo_Pitch();
 }
 
+void APirateCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatorController, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	PlayHitReactMontage();
+	UpdateHUDHealth();
+}
+
+void APirateCharacter::UpdateHUDHealth()
+{
+	PiratePlayerController = PiratePlayerController == nullptr ? Cast<APiratePlayerController>(Controller) : PiratePlayerController;
+	if (PiratePlayerController)
+	{
+		PiratePlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
 void APirateCharacter::TurnInPlace(float DeltaTime)
 {
 	if (AO_Yaw > 90.f)
@@ -352,11 +369,6 @@ void APirateCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 	}
 }
 
-void APirateCharacter::MulticastHit_Implementation()
-{
-	PlayHitReactMontage();
-}
-
 void APirateCharacter::HideCameraIfCharacterClose()
 {
 	if (!IsLocallyControlled()) return;
@@ -387,7 +399,8 @@ float APirateCharacter::CalculateSpeed()
 
 void APirateCharacter::OnRep_Health()
 {
-	
+	UpdateHUDHealth();
+	PlayHitReactMontage();
 }
 
 void APirateCharacter::SetOverlappingWeapon(AWeapon* Weapon)

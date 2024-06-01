@@ -24,6 +24,9 @@ protected:
 		FVector NormalImpulse,
 		const FHitResult& Hit
 	);
+	
+	UPROPERTY(EditAnywhere)
+	float Damage = 20.f;
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -39,4 +42,5 @@ private:
 	UParticleSystem* ImpactParticle;
 	UPROPERTY(EditAnywhere)
 	class USoundCue* ImpactSound;
+
 };
