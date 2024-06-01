@@ -29,6 +29,7 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsAiming = PirateCharacter->IsAiming();
 	TurningInPlace = PirateCharacter->GetTurningInPlace();
 	bRotateRootBone = PirateCharacter->ShouldRotateRootBone();
+	bElimmed = PirateCharacter->IsElimmed();
 
 	// Offset Yaw for Strafing
 	FRotator AimRotation = PirateCharacter->GetBaseAimRotation();

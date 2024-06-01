@@ -9,12 +9,14 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "PirateWar/Component/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PirateWar/GameMode/MainGameMode.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
 
 APirateCharacter::APirateCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
 	CameraBoom->TargetArmLength = 300.f;
@@ -51,6 +53,32 @@ void APirateCharacter::PostInitializeComponents()
 	if (Combat2)
 	{
 		Combat2->Character = this;
+	}
+}
+
+void APirateCharacter::Elim()
+{
+	MulticastElim();
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&APirateCharacter::Elim,
+		ElimDelay
+	);
+}
+
+void APirateCharacter::MulticastElim_Implementation()
+{
+	bElimmed = true;
+	PlayElimMontage();
+}
+
+void APirateCharacter::ElimTimerFinished()
+{
+	AMainGameMode* MainGameMode = GetWorld()->GetAuthGameMode<AMainGameMode>();
+	if (MainGameMode)
+	{
+		MainGameMode->RequestRespawn(this, Controller);
 	}
 }
 
@@ -140,6 +168,15 @@ void APirateCharacter::PlayHitReactMontage()
 		//TODO Change Section
 		FName SectionName = FName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void APirateCharacter::PlayElimMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ElimMontage)
+	{
+		AnimInstance->Montage_Play(ElimMontage);
 	}
 }
 
@@ -302,8 +339,19 @@ void APirateCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 	AController* InstigatorController, AActor* DamageCauser)
 {
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
-	PlayHitReactMontage();
 	UpdateHUDHealth();
+	PlayHitReactMontage();
+
+	if (Health == 0.f	)
+	{
+		AMainGameMode* MainGameMode = GetWorld()->GetAuthGameMode<AMainGameMode>();
+		if (MainGameMode)
+		{
+			PiratePlayerController = PiratePlayerController == nullptr ? Cast<APiratePlayerController>(Controller) : PiratePlayerController;
+			APiratePlayerController* AttackerController = Cast<APiratePlayerController>(InstigatorController);
+			MainGameMode->PlayerEliminated(this, PiratePlayerController, AttackerController);
+		}
+	}
 }
 
 void APirateCharacter::UpdateHUDHealth()

@@ -18,8 +18,12 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 
+	void Elim();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastElim();
 	void PlayFireMontage(bool bAiming);
 	void PlayHitReactMontage();
+	void PlayElimMontage();
 
 	virtual void OnRep_ReplicatedMovement() override;
 	
@@ -83,6 +87,8 @@ private:
 	class UAnimMontage* FireWeaponMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* HitReactMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* ElimMontage;
 
 	void HideCameraIfCharacterClose();
 	float CameraThreshold = 200.f;
@@ -107,6 +113,15 @@ private:
 
 	class APiratePlayerController* PiratePlayerController;
 
+	/*
+	 * Elim
+	 */
+	bool bElimmed = false;
+	FTimerHandle ElimTimer;
+	UPROPERTY(EditDefaultsOnly)
+	float ElimDelay = 3.f;
+	void ElimTimerFinished();
+	
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
@@ -118,4 +133,5 @@ public:
 	FVector GetHitTarget() const;
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
+	FORCEINLINE bool IsElimmed() const { return bElimmed; }
 };
