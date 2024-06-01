@@ -155,6 +155,7 @@ void APirateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APirateCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APirateCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APirateCharacter::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APirateCharacter::ReloadButtonPressed);
 }
 
 void APirateCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -173,6 +174,24 @@ void APirateCharacter::PlayFireMontage(bool bAiming)
 	{
 		AnimInstance->Montage_Play(FireWeaponMontage);
 		FName SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void APirateCharacter::PlayReloadMontage()
+{
+	if (Combat2 == nullptr || Combat2->EquippedWeapon == nullptr) return;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ReloadMontage)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);	
+		FName SectionName;
+		switch (GetEquippedWeapon()->GetWeaponType())
+		{
+		case EWeaponType::EWT_AssaultRife:
+			SectionName = FName("Rifle");
+			break;
+		}
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
@@ -264,6 +283,14 @@ void APirateCharacter::AimButtonReleased()
 	if (Combat2)
 	{
 		Combat2->SetAiming(false);
+	}
+}
+
+void APirateCharacter::ReloadButtonPressed()
+{
+	if (Combat2)
+	{
+		Combat2->Reload();
 	}
 }
 

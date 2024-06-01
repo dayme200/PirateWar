@@ -22,6 +22,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastElim();
 	void PlayFireMontage(bool bAiming);
+	void PlayReloadMontage();
 	void PlayHitReactMontage();
 	void PlayElimMontage();
 
@@ -43,6 +44,7 @@ protected:
 	void FireButtonReleased();
 	void AimButtonPressed();
 	void AimButtonReleased();
+	void ReloadButtonPressed();
 	virtual void Jump() override;
 
 	void SimProxiesTurn();
@@ -87,9 +89,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
-	class UAnimMontage* HitReactMontage;
+	UAnimMontage* ReloadMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
-	class UAnimMontage* ElimMontage;
+	UAnimMontage* HitReactMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* ElimMontage;
 
 	void HideCameraIfCharacterClose();
 	float CameraThreshold = 200.f;

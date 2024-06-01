@@ -22,7 +22,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
-
+	void Reload();
+	
 	FVector HitTarget;
 	
 protected:
@@ -39,6 +40,9 @@ protected:
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 	void SetHUDCrosshairs(float DeltaTime);
+
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
 	
 private:
 	UPROPERTY()
