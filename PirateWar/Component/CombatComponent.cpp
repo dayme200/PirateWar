@@ -155,7 +155,7 @@ void UCombatComponent::Fire()
 
 bool UCombatComponent::CanFire()
 {
-	if (EquippedWeapon == nullptr) return nullptr;
+	if (EquippedWeapon == nullptr) return false;
 	return !EquippedWeapon->IsEmpty() || !bCanFire;
 }
 
