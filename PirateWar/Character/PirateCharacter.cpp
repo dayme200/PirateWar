@@ -58,11 +58,15 @@ void APirateCharacter::PostInitializeComponents()
 
 void APirateCharacter::Elim()
 {
+	if (Combat2 && Combat2->EquippedWeapon)
+	{
+		Combat2->EquippedWeapon->Dropped();
+	}
 	MulticastElim();
 	GetWorldTimerManager().SetTimer(
 		ElimTimer,
 		this,
-		&APirateCharacter::Elim,
+		&APirateCharacter::ElimTimerFinished,
 		ElimDelay
 	);
 }
@@ -71,6 +75,15 @@ void APirateCharacter::MulticastElim_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();
+
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	if (PiratePlayerController)
+	{
+		DisableInput(PiratePlayerController);
+	}
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void APirateCharacter::ElimTimerFinished()
@@ -164,7 +177,7 @@ void APirateCharacter::PlayHitReactMontage()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
 	{
-		AnimInstance->Montage_Play(HitReactMontage);
+		AnimInstance->Montage_Play(HitReactMontage);	
 		//TODO Change Section
 		FName SectionName = FName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
@@ -342,7 +355,7 @@ void APirateCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 	UpdateHUDHealth();
 	PlayHitReactMontage();
 
-	if (Health == 0.f	)
+	if (Health == 0.f)
 	{
 		AMainGameMode* MainGameMode = GetWorld()->GetAuthGameMode<AMainGameMode>();
 		if (MainGameMode)

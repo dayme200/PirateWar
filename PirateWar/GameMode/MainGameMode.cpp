@@ -8,7 +8,6 @@ void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APirate
 {
 	if (ElimmedCharacter)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("test: ELIMM"));
 		ElimmedCharacter->Elim();
 	}
 }
