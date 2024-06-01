@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "PirateWar/Weapon/WeaponTypes.h"
 #include "Weapon.generated.h"
 
 UENUM(BlueprintType)
@@ -48,6 +49,8 @@ public:
 	class APirateCharacter* PirateOwnerCharacter;
 	UPROPERTY()
 	class APiratePlayerController* PirateOwnerController;
+	UPROPERTY(EditAnywhere)
+	EWeaponType WeaponType;
 	
 	/*
 	 * Textures for the weapon crosshairs
@@ -120,4 +123,5 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bAutomatic = true;
 	bool IsEmpty();
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 };

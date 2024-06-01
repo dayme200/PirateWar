@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "PirateWar/HUD/PirateHUD.h"
+#include "PirateWar/Weapon/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000
@@ -88,6 +89,15 @@ private:
 	void Fire();
 
 	bool CanFire();
+
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo;
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+	TMap<EWeaponType, int32> CarriedAmmoMap;
+	void InitializeCarriedAmmo();
+	UPROPERTY(EditAnywhere)
+	int32 StartingARAmmo = 30;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ZoomedFOV = 30.f;
