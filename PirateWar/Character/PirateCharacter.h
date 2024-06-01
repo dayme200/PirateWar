@@ -57,7 +57,6 @@ protected:
 		AActor* DamageCauser
 	);
 	void UpdateHUDHealth();
-	void UpdateHUDScore();
 	void PollInit();
 	
 private:

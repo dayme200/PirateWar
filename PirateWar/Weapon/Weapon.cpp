@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "PirateWar/Character/PirateCharacter.h"
+#include "PirateWar/PlayerController/PiratePlayerController.h"
 
 AWeapon::AWeapon()
 {
@@ -56,6 +57,34 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon,WeaponState);
+	DOREPLIFETIME(AWeapon,Ammo);
+}
+
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+	if (Owner == nullptr)
+	{
+		PirateOwnerCharacter = nullptr;
+		PirateOwnerController = nullptr;	
+	}
+	else
+	{
+		SetHUDAmmo();
+	}
+}
+
+void AWeapon::SetHUDAmmo()
+{
+	PirateOwnerCharacter = PirateOwnerCharacter == nullptr ? Cast<APirateCharacter>(GetOwner()) : PirateOwnerCharacter;
+	if (PirateOwnerCharacter)
+	{
+		PirateOwnerController = PirateOwnerController == nullptr ? Cast<APiratePlayerController>(PirateOwnerCharacter->Controller) : PirateOwnerController;
+		if (PirateOwnerController)
+		{
+			PirateOwnerController->SetHUDWeaponAmmo(Ammo);	
+		}
+	}
 }
 
 void AWeapon::OnSphereoverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -151,6 +180,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
+	SpendRound();
 }
 
 void AWeapon::Dropped()
@@ -159,5 +189,18 @@ void AWeapon::Dropped()
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 	SetOwner(nullptr);
+	PirateOwnerCharacter = nullptr;
+	PirateOwnerController = nullptr;
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	SetHUDAmmo();
+}
+
+void AWeapon::SpendRound()
+{
+	--Ammo;
+	SetHUDAmmo();
 }
 

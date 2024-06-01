@@ -74,6 +74,10 @@ void APirateCharacter::Elim()
 
 void APirateCharacter::MulticastElim_Implementation()
 {
+	if (PiratePlayerController)
+	{
+		PiratePlayerController->SetHUDWeaponAmmo(0);
+	}
 	bElimmed = true;
 	PlayElimMontage();
 
@@ -376,10 +380,6 @@ void APirateCharacter::UpdateHUDHealth()
 	{
 		PiratePlayerController->SetHUDHealth(Health, MaxHealth);
 	}
-}
-
-void APirateCharacter::UpdateHUDScore()
-{
 }
 
 void APirateCharacter::PollInit()

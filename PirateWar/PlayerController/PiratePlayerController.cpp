@@ -58,6 +58,19 @@ void APiratePlayerController::SetHUDDefeat(int32 Defeat)
 	}
 }
 
+void APiratePlayerController::SetHUDWeaponAmmo(int32 Ammo)
+{
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->AmmoAmount;
+
+	if (bHUDValid)
+	{
+		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
+		PirateHUD->CharacterOverlay->AmmoAmount->SetText(FText::FromString(AmmoText));
+	}
+}
+
 void APiratePlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

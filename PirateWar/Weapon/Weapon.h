@@ -24,6 +24,8 @@ public:
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnRep_Owner() override;
+	void SetHUDAmmo();
 	void ShowPickupWidget(bool bShowWidget);
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
@@ -31,6 +33,22 @@ public:
 	UPROPERTY(EditAnywhere, Category = WeaponProperties)
 	class UAnimationAsset* FireAnimation;
 
+	/*
+	 * Ammo
+	 */
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
+	int32 Ammo = 30.f;
+	UFUNCTION()
+	void OnRep_Ammo();
+	void SpendRound();
+	UPROPERTY(EditAnywhere)
+	int32 MagCapacity = 30.f;
+
+	UPROPERTY()
+	class APirateCharacter* PirateOwnerCharacter;
+	UPROPERTY()
+	class APiratePlayerController* PirateOwnerController;
+	
 	/*
 	 * Textures for the weapon crosshairs
 	 */
