@@ -141,7 +141,7 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 
 void UCombatComponent::Fire()
 {
-	if (bCanFire)
+	if (CanFire())
 	{
 		bCanFire = false;
 		ServerFire(HitTarget);
@@ -151,6 +151,12 @@ void UCombatComponent::Fire()
 		}
 		StartFireTimer();	
 	}
+}
+
+bool UCombatComponent::CanFire()
+{
+	if (EquippedWeapon == nullptr) return nullptr;
+	return !EquippedWeapon->IsEmpty() || !bCanFire;
 }
 
 void UCombatComponent::FireButtonPressed(bool bPressed)

@@ -119,4 +119,5 @@ public:
 	float FireDelay = .15f;
 	UPROPERTY(EditAnywhere)
 	bool bAutomatic = true;
+	bool IsEmpty();
 };

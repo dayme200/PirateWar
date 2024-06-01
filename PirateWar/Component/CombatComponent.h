@@ -87,6 +87,8 @@ private:
 	void FireTimerFinished();
 	void Fire();
 
+	bool CanFire();
+
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ZoomedFOV = 30.f;
 	UPROPERTY(EditAnywhere, Category = Combat)
