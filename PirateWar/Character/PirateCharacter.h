@@ -99,6 +99,8 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 
+	class APiratePlayerController* PiratePlayerController;
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();

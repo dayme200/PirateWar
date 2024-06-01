@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "PirateWar/Component/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PirateWar/PlayerController/PiratePlayerController.h"
 
 APirateCharacter::APirateCharacter()
 {
@@ -63,6 +64,12 @@ void APirateCharacter::OnRep_ReplicatedMovement()
 void APirateCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PiratePlayerController = Cast<APiratePlayerController>(Controller);
+	if (PiratePlayerController)
+	{
+		PiratePlayerController->SetHUDHealth(Health, MaxHealth);
+	}
 }
 
 void APirateCharacter::Tick(float DeltaTime)
