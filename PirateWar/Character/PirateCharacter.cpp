@@ -108,6 +108,7 @@ void APirateCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(APirateCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(APirateCharacter, Health);
 }
 
 void APirateCharacter::PlayFireMontage(bool bAiming)
@@ -375,6 +376,11 @@ float APirateCharacter::CalculateSpeed()
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
 	return Velocity.Size();
+}
+
+void APirateCharacter::OnRep_Health()
+{
+	
 }
 
 void APirateCharacter::SetOverlappingWeapon(AWeapon* Weapon)

@@ -89,6 +89,16 @@ private:
 	float TimeSinceLastMovementReplication;
 	float CalculateSpeed();
 
+	/*
+	 * Player Health
+	 */
+	UPROPERTY(EditAnywhere, Category = Stat)
+	float MaxHealth = 100.f;
+	UPROPERTY(ReplicatedUsing = OnRep_Health)
+	float Health = 100.f;
+	UFUNCTION()
+	void OnRep_Health();
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();

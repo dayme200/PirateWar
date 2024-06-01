@@ -1,4 +1,22 @@
 #include "PirateHUD.h"
+#include "CharacterOverlay.h"
+#include "Blueprint/UserWidget.h"
+
+void APirateHUD::BeginPlay()
+{
+	Super::BeginPlay();
+	AddCharacterOverlay();
+}
+
+void APirateHUD::AddCharacterOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && CharacterOverlayClass)
+	{
+		CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
+		CharacterOverlay->AddToViewport();
+	}
+}
 
 void APirateHUD::DrawHUD()
 {
