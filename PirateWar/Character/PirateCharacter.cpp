@@ -547,3 +547,9 @@ FVector APirateCharacter::GetHitTarget() const
 	if (Combat2 == nullptr) return FVector();
 	return Combat2->HitTarget;
 }
+
+ECombatState APirateCharacter::GetCombatState() const
+{
+	if (Combat2 == nullptr) return ECombatState::ECS_MAX;
+	return Combat2->CombatState;
+}

@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../Type/TurningInPlace.h"
+#include "PirateWar/Type/CombatState.h"
 #include "PirateWar/Interface/InteractWithCrosshairInterface.h"
 #include "PirateCharacter.generated.h"
 
@@ -73,7 +74,7 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat2;
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
@@ -145,4 +146,5 @@ public:
 	FORCEINLINE bool IsElimmed() const { return bElimmed; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	ECombatState GetCombatState() const;
 };

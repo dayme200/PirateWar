@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "PirateWar/HUD/PirateHUD.h"
+#include "PirateWar/Type/CombatState.h"
 #include "PirateWar/Weapon/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
@@ -23,6 +24,8 @@ public:
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
 	void Reload();
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
 	
 	FVector HitTarget;
 	
@@ -43,6 +46,8 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
+
+	void HandleReload();
 	
 private:
 	UPROPERTY()
@@ -108,6 +113,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ZoomInterpSpeed = 20.f;
 	void InterpFOV(float DeltaTime);
+
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_Unonccupired;
+	UFUNCTION()
+	void OnRep_CombatState();
 
 public:
 };

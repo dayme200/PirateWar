@@ -70,4 +70,6 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaTime, 30.f);
 		}
 	}
+
+	bUseFABRIK = PirateCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 }
