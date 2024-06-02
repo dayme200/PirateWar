@@ -10,6 +10,8 @@
 #include "PirateWar/GameMode/MainGameMode.h"
 #include "PirateWar/Character/PirateCharacter.h"
 #include "PirateWar/Component/CombatComponent.h"
+#include "PirateWar/GameState/MainGameState.h"
+#include "PirateWar/PlayerState/PiratePlayerState.h"
 
 
 void APiratePlayerController::BeginPlay()
@@ -348,7 +350,35 @@ void APiratePlayerController::HandleCooldown()
 			PirateHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
 			FString AnnouncementText("New Match Starts In:");
 			PirateHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
-			PirateHUD->Announcement->InfoText->SetText(FText());
+			
+			AMainGameState* MainGameState = Cast<AMainGameState>(UGameplayStatics::GetGameState(this));
+			APiratePlayerState* PiratePlayerState = GetPlayerState<APiratePlayerState>();
+			if (MainGameState && PiratePlayerState)
+			{
+				TArray<APiratePlayerState*> TopPlayers = MainGameState->TopScoringPlayers;
+				FString InfoTextString;
+				if (TopPlayers.Num() == 0)
+				{
+					InfoTextString = FString("There is no winner");
+				}
+				else if (TopPlayers.Num() == 1 && TopPlayers[0] == PiratePlayerState)
+				{
+					InfoTextString = FString("You are winner!");
+				}
+				else if (TopPlayers.Num() == 1)
+				{
+					InfoTextString = FString::Printf(TEXT("Winner: \n%s"), *TopPlayers[0]->GetPlayerName());
+				}
+				else if (TopPlayers.Num() > 1)
+				{
+					InfoTextString = FString("Players tied for the win:\n");
+					for (auto Tiedplayer : TopPlayers)
+					{
+						InfoTextString.Append(FString::Printf(TEXT("%s\n"), *Tiedplayer->GetPlayerName()));
+					}
+				}
+				PirateHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextString));
+			}
 		}
 	}
 	APirateCharacter* PirateCharacter = Cast<APirateCharacter>(GetPawn());

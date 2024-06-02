@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "PirateWar/Component/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "PirateWar/GameMode/MainGameMode.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
 #include "PirateWar/PlayerState/PiratePlayerState.h"
@@ -84,6 +85,10 @@ void APirateCharacter::MulticastElim_Implementation()
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
 	bDisableGameplay = true;
+	if (Combat2)
+	{
+		Combat2->FireButtonPressed(false);
+	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
@@ -118,7 +123,10 @@ void APirateCharacter::BeginPlay()
 void APirateCharacter::Destroyed()
 {
 	Super::Destroyed();
-	if (Combat2 && Combat2->EquippedWeapon)
+
+	AMainGameMode* MainGameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(this));
+	bool bMatchNotInProgress = MainGameMode && MainGameMode->GetMatchState() != MatchState::InProgress;
+	if (Combat2 && Combat2->EquippedWeapon && bMatchNotInProgress)
 	{
 		Combat2->EquippedWeapon->Destroy();
 	}
