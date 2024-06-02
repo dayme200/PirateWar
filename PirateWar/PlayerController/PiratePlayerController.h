@@ -16,11 +16,17 @@ public:
 	void SetHUDDefeat(int32 Defeat);
 	void SetHUDWeaponAmmo(int32 Ammo);
 	void SetHUDCarriedAmmo(int32 Ammo);
+	void SetHUDMatchCountDown(float CountDownTime);
 
 protected:
 	virtual void BeginPlay() override;
-
+	virtual void Tick(float DeltaSeconds) override;
+	void SetHUDTime();
+	
 private:
 	UPROPERTY()
 	class APirateHUD* PirateHUD;
+
+	float MatchTime = 120.f;
+	uint32 CountDownInt = 0;
 };

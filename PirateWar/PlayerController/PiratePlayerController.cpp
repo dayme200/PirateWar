@@ -13,6 +13,13 @@ void APiratePlayerController::BeginPlay()
 	PirateHUD = Cast<APirateHUD>(GetHUD());
 }
 
+void APiratePlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	SetHUDTime();
+}
+
 void APiratePlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
 	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
@@ -82,6 +89,32 @@ void APiratePlayerController::SetHUDCarriedAmmo(int32 Ammo)
 		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
 		PirateHUD->CharacterOverlay->CarriedAmmoAmount->SetText(FText::FromString(AmmoText));
 	}
+}
+
+void APiratePlayerController::SetHUDMatchCountDown(float CountDownTime)
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->MatchCountDownText;
+
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(CountDownTime / 60.f);
+		int32 Seconds = CountDownTime - Minutes * 60;
+		FString CountDownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		PirateHUD->CharacterOverlay->MatchCountDownText->SetText(FText::FromString(CountDownText));
+	}
+}
+	
+void APiratePlayerController::SetHUDTime()
+{
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	if (CountDownInt != SecondsLeft)
+	{
+		SetHUDMatchCountDown(MatchTime - GetWorld()->GetTimeSeconds());
+	}
+	CountDownInt = SecondsLeft;
 }
 
 void APiratePlayerController::OnPossess(APawn* InPawn)
