@@ -17,6 +17,7 @@ public:
 	void SetHUDWeaponAmmo(int32 Ammo);
 	void SetHUDCarriedAmmo(int32 Ammo);
 	void SetHUDMatchCountDown(float CountDownTime);
+	void SetHUDAnnouncementCountDown(float CountDownTime);
 
 protected:
 	virtual void BeginPlay() override;
@@ -38,18 +39,27 @@ protected:
 	float TimeSyncFrequency = 5.f;
 	float TimeSyncRunningTime = 0.f;
 	void CheckTimeSync(float DeltaTime);
+
+	UFUNCTION(Server,Reliable)
+	void ServerCheckMatchState();
+	UFUNCTION(Client, Reliable)
+	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float StartingTime);
 	
 private:
 	UPROPERTY()
 	class APirateHUD* PirateHUD;
 
+	float LevelStartingTime = 0.f;
 	float MatchTime = 120.f;
+	UPROPERTY(EditDefaultsOnly)
+	float WarmupTime = 0.f;
 	uint32 CountDownInt = 0;
 
 public:
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
 	FName MatchState;
 	void OnMatchStateSet(FName State);
+	void HandleMatchHasStarted();
 	UFUNCTION()
 	void OnRep_MatchState();
 	UPROPERTY()

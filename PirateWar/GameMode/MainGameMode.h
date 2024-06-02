@@ -19,6 +19,8 @@ public:
 	virtual void RequestRespawn(class APirateCharacter* ElimmedCharacter, AController* ElimmedController);
 
 	UPROPERTY(EditDefaultsOnly)
+	float MatchTime = 120.f;
+	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 5.f;
 	float LevelStartingTime = 0.f;
 
