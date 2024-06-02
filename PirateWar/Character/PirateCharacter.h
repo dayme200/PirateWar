@@ -28,9 +28,12 @@ public:
 	void PlayElimMontage();
 
 	virtual void OnRep_ReplicatedMovement() override;
+	UPROPERTY(Replicated)
+	bool bDisableGameplay = false;
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 
 	/*
 	 * Input Mapping
@@ -61,6 +64,7 @@ protected:
 	);
 	void UpdateHUDHealth();
 	void PollInit();
+	void RotateInPlace(float DeltaTime);
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
@@ -147,4 +151,6 @@ public:
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 	ECombatState GetCombatState() const;
+	FORCEINLINE UCombatComponent* GetCombat() const { return Combat2; }
+	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
 };

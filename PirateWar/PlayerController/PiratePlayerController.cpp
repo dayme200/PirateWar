@@ -9,6 +9,7 @@
 #include "PirateWar/HUD/CharacterOverlay.h"
 #include "PirateWar/GameMode/MainGameMode.h"
 #include "PirateWar/Character/PirateCharacter.h"
+#include "PirateWar/Component/CombatComponent.h"
 
 
 void APiratePlayerController::BeginPlay()
@@ -349,5 +350,11 @@ void APiratePlayerController::HandleCooldown()
 			PirateHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 			PirateHUD->Announcement->InfoText->SetText(FText());
 		}
+	}
+	APirateCharacter* PirateCharacter = Cast<APirateCharacter>(GetPawn());
+	if (PirateCharacter && PirateCharacter->GetCombat())
+	{
+		PirateCharacter->bDisableGameplay = true;
+		PirateCharacter->GetCombat()->FireButtonPressed(false);
 	}
 }

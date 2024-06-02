@@ -43,6 +43,14 @@ void AMainGameMode::Tick(float DeltaSeconds)
 			SetMatchState(MatchState::Cooldown);
 		}
 	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		CountDownTime = CooldownTime + WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CooldownTime <= 0.f)
+		{
+			RestartGame();
+		}
+	}
 }
 
 void AMainGameMode::OnMatchStateSet()

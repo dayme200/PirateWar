@@ -83,10 +83,7 @@ void APirateCharacter::MulticastElim_Implementation()
 
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-	if (PiratePlayerController)
-	{
-		DisableInput(PiratePlayerController);
-	}
+	bDisableGameplay = true;
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
@@ -118,10 +115,31 @@ void APirateCharacter::BeginPlay()
 	}
 }
 
+void APirateCharacter::Destroyed()
+{
+	Super::Destroyed();
+	if (Combat2 && Combat2->EquippedWeapon)
+	{
+		Combat2->EquippedWeapon->Destroy();
+	}
+}
+
 void APirateCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	RotateInPlace(DeltaTime);
+	HideCameraIfCharacterClose();
+	PollInit();
+}
 
+void APirateCharacter::RotateInPlace(float DeltaTime)
+{
+	if (bDisableGameplay)
+	{
+		bUseControllerRotationYaw = false;
+		TurningInPlace = ETurningInPlace::ETP_NotTurning;
+		return;
+	}
 	if (GetLocalRole() > ROLE_SimulatedProxy && IsLocallyControlled())
 	{
 		AimOffset(DeltaTime);
@@ -135,8 +153,6 @@ void APirateCharacter::Tick(float DeltaTime)
 		}
 		CalculateAo_Pitch();
 	}
-	HideCameraIfCharacterClose();
-	PollInit();
 }
 
 void APirateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -164,6 +180,7 @@ void APirateCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME_CONDITION(APirateCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(APirateCharacter, Health);
+	DOREPLIFETIME(APirateCharacter, bDisableGameplay);
 }
 
 void APirateCharacter::PlayFireMontage(bool bAiming)
@@ -220,6 +237,7 @@ void APirateCharacter::PlayElimMontage()
 
 void APirateCharacter::MoveForward(float Value)
 {
+	if (bDisableGameplay) return;
 	if (Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -230,6 +248,7 @@ void APirateCharacter::MoveForward(float Value)
 
 void APirateCharacter::MoveRight(float Value)
 {
+	if (bDisableGameplay) return;
 	if (Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -250,12 +269,14 @@ void APirateCharacter::LookUp(float Value)
 
 void APirateCharacter::CrouchButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (bIsCrouched) UnCrouch();
 	else Crouch();
 }
 
 void APirateCharacter::FireButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat2)
 	{
 		Combat2->FireButtonPressed(true);
@@ -264,6 +285,7 @@ void APirateCharacter::FireButtonPressed()
 
 void APirateCharacter::FireButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat2)
 	{
 		Combat2->FireButtonPressed(false);
@@ -272,6 +294,7 @@ void APirateCharacter::FireButtonReleased()
 
 void APirateCharacter::AimButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat2)
 	{
 		Combat2->SetAiming(true);
@@ -280,6 +303,7 @@ void APirateCharacter::AimButtonPressed()
 
 void APirateCharacter::AimButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat2)
 	{
 		Combat2->SetAiming(false);
@@ -288,6 +312,7 @@ void APirateCharacter::AimButtonReleased()
 
 void APirateCharacter::ReloadButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat2)
 	{
 		Combat2->Reload();
@@ -296,6 +321,7 @@ void APirateCharacter::ReloadButtonPressed()
 
 void APirateCharacter::Jump()
 {
+	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -446,6 +472,7 @@ void APirateCharacter::TurnInPlace(float DeltaTime)
 
 void APirateCharacter::EquipButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat2)
 	{
 		if (!HasAuthority())
