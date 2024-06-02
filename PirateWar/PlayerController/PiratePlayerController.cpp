@@ -13,11 +13,22 @@ void APiratePlayerController::BeginPlay()
 	PirateHUD = Cast<APirateHUD>(GetHUD());
 }
 
-void APiratePlayerController::Tick(float DeltaSeconds)
+void APiratePlayerController::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaSeconds);
+	Super::Tick(DeltaTime);
 
 	SetHUDTime();
+	CheckTimeSync(DeltaTime);
+}
+
+void APiratePlayerController::CheckTimeSync(float DeltaTime)
+{
+	TimeSyncRunningTime += DeltaTime;
+	if (IsLocalController() && TimeSyncRunningTime > TimeSyncFrequency)
+	{
+		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+		TimeSyncRunningTime = 0.f;
+	}
 }
 
 void APiratePlayerController::SetHUDHealth(float Health, float MaxHealth)
@@ -109,12 +120,41 @@ void APiratePlayerController::SetHUDMatchCountDown(float CountDownTime)
 	
 void APiratePlayerController::SetHUDTime()
 {
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
 	if (CountDownInt != SecondsLeft)
 	{
-		SetHUDMatchCountDown(MatchTime - GetWorld()->GetTimeSeconds());
+		SetHUDMatchCountDown(MatchTime - GetServerTime());
 	}
 	CountDownInt = SecondsLeft;
+}
+
+float APiratePlayerController::GetServerTime()
+{
+	if (HasAuthority()) return GetWorld()->GetTimeSeconds();
+	return GetWorld()->GetTimeSeconds() + ClientServerDelta;
+}
+
+void APiratePlayerController::ReceivedPlayer()
+{
+	Super::ReceivedPlayer();
+	if (IsLocalController())
+	{
+		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+	}
+}
+
+void APiratePlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
+{
+	float ServerTimeOfReceipt = GetWorld()->GetTimeSeconds();
+	ClientReportServerTime(TimeOfClientRequest, ServerTimeOfReceipt);
+}
+
+void APiratePlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest,
+	float TimeServerReceivedClientRequest)
+{
+	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
+	float CurrentServerTime = TimeServerReceivedClientRequest + (0.5f * RoundTripTime);
+	ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
 }
 
 void APiratePlayerController::OnPossess(APawn* InPawn)
