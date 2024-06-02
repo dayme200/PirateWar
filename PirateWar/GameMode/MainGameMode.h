@@ -10,6 +10,7 @@ class PIRATEWAR_API AMainGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	AMainGameMode();
 	virtual void PlayerEliminated(
 		class APirateCharacter* ElimmedCharacter,
 		class APiratePlayerController* VictimController,
@@ -17,6 +18,14 @@ public:
 	);
 	virtual void RequestRespawn(class APirateCharacter* ElimmedCharacter, AController* ElimmedController);
 
+	UPROPERTY(EditDefaultsOnly)
+	float WarmupTime = 5.f;
+	float LevelStartingTime = 0.f;
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	
+private:
+	float CountDownTime = 0.f;
 };

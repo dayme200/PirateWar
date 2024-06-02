@@ -5,6 +5,33 @@
 #include "PirateWar/PlayerState/PiratePlayerState.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
 
+AMainGameMode::AMainGameMode()
+{
+	bDelayedStart = true;
+	bUseSeamlessTravel = true;
+}
+
+void AMainGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+void AMainGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (GetMatchState() == MatchState::WaitingToStart)
+	{
+		CountDownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountDownTime <= 0.f)
+		{
+			StartMatch();
+		}
+	}
+}
+
 void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APiratePlayerController* VictimController,
                                      APiratePlayerController* AttackerController)
 {
@@ -38,11 +65,4 @@ void AMainGameMode::RequestRespawn(APirateCharacter* ElimmedCharacter, AControll
 		int32 Selection = FMath::RandRange(0, PlayerStarts.Num() - 1);
 		RestartPlayerAtPlayerStart(ElimmedController, PlayerStarts[Selection]);
 	}
-}
-
-void AMainGameMode::BeginPlay()
-{
-	Super::BeginPlay();
-
-	bUseSeamlessTravel = true;
 }
