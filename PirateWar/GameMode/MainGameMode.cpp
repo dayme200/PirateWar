@@ -5,6 +5,11 @@
 #include "PirateWar/PlayerState/PiratePlayerState.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
 
+namespace MatchState
+{
+	const FName Cooldown = FName("Cooldonw");
+}
+
 AMainGameMode::AMainGameMode()
 {
 	bDelayedStart = true;
@@ -28,6 +33,14 @@ void AMainGameMode::Tick(float DeltaSeconds)
 		if (CountDownTime <= 0.f)
 		{
 			StartMatch();
+		}
+	}
+	else if (MatchState == MatchState::InProgress)
+	{
+		CountDownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountDownTime <= 0.f)
+		{
+			SetMatchState(MatchState::Cooldown);
 		}
 	}
 }

@@ -5,10 +5,10 @@
 #include "Components/ProgressBar.h"
 #include "Kismet/GameplayStatics.h"
 #include "PirateWar/HUD/PirateHUD.h"
-#include "PirateWar/HUD/CharacterOverlay.h"
-#include "PirateWar/Character/PirateCharacter.h"
-#include "PirateWar/GameMode/MainGameMode.h"
 #include "PirateWar/HUD/Announcement.h"
+#include "PirateWar/HUD/CharacterOverlay.h"
+#include "PirateWar/GameMode/MainGameMode.h"
+#include "PirateWar/Character/PirateCharacter.h"
 
 
 void APiratePlayerController::BeginPlay()
@@ -51,9 +51,10 @@ void APiratePlayerController::ServerCheckMatchState_Implementation()
 	{
 		WarmupTime = GameMode->WarmupTime;
 		MatchTime = GameMode->MatchTime;
+		CooldownTime = GameMode->CooldownTime;
 		LevelStartingTime = GameMode->LevelStartingTime;
 		MatchState = GameMode->GetMatchState();
-		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
+		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, CooldownTime, LevelStartingTime);
 
 		if (PirateHUD && MatchState == MatchState::WaitingToStart)
 		{
@@ -62,10 +63,11 @@ void APiratePlayerController::ServerCheckMatchState_Implementation()
 	}
 }
 
-void APiratePlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+void APiratePlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime)
 {
 	WarmupTime = Warmup;
 	MatchTime = Match;
+	CooldownTime = Cooldown;
 	LevelStartingTime = StartingTime;
 	MatchState = StateOfMatch;
 	OnMatchStateSet(MatchState);
@@ -172,6 +174,11 @@ void APiratePlayerController::SetHUDMatchCountDown(float CountDownTime)
 
 	if (bHUDValid)
 	{
+		if (CooldownTime < 0.f)
+		{
+			PirateHUD->CharacterOverlay->MatchCountDownText->SetText(FText());
+			return;
+		}
 		int32 Minutes = FMath::FloorToInt(CountDownTime / 60.f);
 		int32 Seconds = CountDownTime - Minutes * 60;
 		FString CountDownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
@@ -188,6 +195,11 @@ void APiratePlayerController::SetHUDAnnouncementCountDown(float CountDownTime)
 
 	if (bHUDValid)
 	{
+		if (CountDownTime < 0.f)
+		{
+			PirateHUD->Announcement->WarmupTime->SetText(FText());
+			return;
+		}
 		int32 Minutes = FMath::FloorToInt(CountDownTime / 60.f);
 		int32 Seconds = CountDownTime - Minutes * 60;
 		FString CountDownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
@@ -200,11 +212,20 @@ void APiratePlayerController::SetHUDTime()
 	float TimeLeft = 0.f;
 	if (MatchState == MatchState::WaitingToStart) TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
 	else if (MatchState == MatchState::InProgress) TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
-	
+	else if (MatchState == MatchState::Cooldown) TimeLeft = CooldownTime + WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
+	if (HasAuthority())
+	{
+		MainGameMode = MainGameMode == nullptr ? Cast<AMainGameMode>(UGameplayStatics::GetGameMode(this)) : MainGameMode;
+		if (MainGameMode)
+		{
+			SecondsLeft = FMath::CeilToInt(MainGameMode->GetCountDownTime() + LevelStartingTime);
+		}
+	}
+	
 	if (CountDownInt != SecondsLeft)
 	{
-		if (MatchState == MatchState::WaitingToStart)
+		if (MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
 		{
 			SetHUDMatchCountDown(TimeLeft);
 		}
@@ -276,13 +297,13 @@ void APiratePlayerController::OnPossess(APawn* InPawn)
 void APiratePlayerController::OnMatchStateSet(FName State)
 {
 	MatchState = State;
-	if (MatchState == MatchState::WaitingToStart)
-	{
-		
-	}
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
 	}
 }
 
@@ -291,6 +312,10 @@ void APiratePlayerController::OnRep_MatchState()
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
 	}
 }
 
@@ -303,6 +328,26 @@ void APiratePlayerController::HandleMatchHasStarted()
 		if (PirateHUD->Announcement)
 		{
 			PirateHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void APiratePlayerController::HandleCooldown()
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	if (PirateHUD)
+	{
+		PirateHUD->CharacterOverlay->RemoveFromParent();
+		bool bHUDValid = PirateHUD->Announcement &&
+			PirateHUD->Announcement->AnnouncementText &&
+			PirateHUD->Announcement->InfoText;
+		
+		if (bHUDValid)
+		{
+			PirateHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
+			FString AnnouncementText("New Match Starts In:");
+			PirateHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
+			PirateHUD->Announcement->InfoText->SetText(FText());
 		}
 	}
 }

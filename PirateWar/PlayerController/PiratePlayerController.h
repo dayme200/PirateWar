@@ -43,16 +43,19 @@ protected:
 	UFUNCTION(Server,Reliable)
 	void ServerCheckMatchState();
 	UFUNCTION(Client, Reliable)
-	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float StartingTime);
+	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime);
 	
 private:
 	UPROPERTY()
 	class APirateHUD* PirateHUD;
+	UPROPERTY()
+	class AMainGameMode* MainGameMode;
 
 	float LevelStartingTime = 0.f;
 	float MatchTime = 120.f;
 	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 0.f;
+	float CooldownTime = 0.f;
 	uint32 CountDownInt = 0;
 
 public:
@@ -60,6 +63,7 @@ public:
 	FName MatchState;
 	void OnMatchStateSet(FName State);
 	void HandleMatchHasStarted();
+	void HandleCooldown();
 	UFUNCTION()
 	void OnRep_MatchState();
 	UPROPERTY()

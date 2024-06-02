@@ -4,6 +4,11 @@
 #include "GameFramework/GameMode.h"
 #include "MainGameMode.generated.h"
 
+namespace MatchState
+{
+	extern PIRATEWAR_API const FName Cooldown; 
+}
+
 UCLASS()
 class PIRATEWAR_API AMainGameMode : public AGameMode
 {
@@ -22,6 +27,8 @@ public:
 	float MatchTime = 120.f;
 	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 5.f;
+	UPROPERTY(EditDefaultsOnly)
+	float CooldownTime = 5.f;
 	float LevelStartingTime = 0.f;
 
 protected:
@@ -31,4 +38,7 @@ protected:
 	
 private:
 	float CountDownTime = 0.f;
+
+public:
+	FORCEINLINE float GetCountDownTime() const { return CountDownTime; }
 };
