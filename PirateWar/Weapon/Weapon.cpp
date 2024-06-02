@@ -198,6 +198,12 @@ void AWeapon::Dropped()
 	PirateOwnerController = nullptr;
 }
 
+void AWeapon::AddAmmo(int32 AddToAmmo)
+{
+	Ammo = FMath::Clamp(Ammo - AddToAmmo, 0, MagCapacity);
+	SetHUDAmmo();
+}
+
 void AWeapon::OnRep_Ammo()
 {
 	SetHUDAmmo();

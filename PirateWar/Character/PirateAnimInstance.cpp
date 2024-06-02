@@ -72,4 +72,6 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	}
 
 	bUseFABRIK = PirateCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	bUseOffsets = PirateCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	bTransformRightHand = PirateCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 }

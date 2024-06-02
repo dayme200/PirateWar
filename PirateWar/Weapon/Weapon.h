@@ -30,6 +30,7 @@ public:
 	void ShowPickupWidget(bool bShowWidget);
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
+	void AddAmmo(int32 AddToAmmo);
 
 	UPROPERTY(EditAnywhere, Category = WeaponProperties)
 	class UAnimationAsset* FireAnimation;
@@ -123,5 +124,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bAutomatic = true;
 	bool IsEmpty();
+	UPROPERTY(EditAnywhere)
+	class USoundBase* EquipSound;
+
+	
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 };

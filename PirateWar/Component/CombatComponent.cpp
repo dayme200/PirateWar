@@ -96,6 +96,11 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
+
+	if (EquippedWeapon->EquipSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
+	}
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
 }
@@ -114,6 +119,7 @@ void UCombatComponent::FinishReloading()
 	if (Character->HasAuthority())
 	{
 		CombatState = ECombatState::ECS_Unonccupired;
+		UpdateAmmoValues();
 	}
 	if (bFireButtonPressed)
 	{
@@ -123,14 +129,48 @@ void UCombatComponent::FinishReloading()
 
 void UCombatComponent::ServerReload_Implementation()
 {
-	if (Character == nullptr) return;
+	if (Character == nullptr || EquippedWeapon == nullptr) return;
+	
+	UpdateAmmoValues();
 	CombatState = ECombatState::ECS_Reloading;
 	HandleReload();
+}
+
+void UCombatComponent::UpdateAmmoValues()
+{
+	if (Character == nullptr || EquippedWeapon == nullptr) return;
+	int32 ReloadAmount = AmountToReload();
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+	Controller = Controller == nullptr ? Cast<APiratePlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+	}
+	EquippedWeapon->AddAmmo(-ReloadAmount);
 }
 
 void UCombatComponent::HandleReload()
 {
 	Character->PlayReloadMontage();
+}
+
+int32 UCombatComponent::AmountToReload()
+{
+	if (EquippedWeapon == nullptr) return 0;
+	int32 RoomInMag = EquippedWeapon->GetMagCapacity() - EquippedWeapon->GetAmmo();
+	
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		int32 AmountCarried = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+		int32 Least = FMath::Min(RoomInMag, AmountCarried);
+		return FMath::Clamp(RoomInMag, 0, Least);
+	}
+
+	return 0;
 }
 
 void UCombatComponent::OnRep_CombatState()
@@ -161,6 +201,11 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		}
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
+
+		if (EquippedWeapon->EquipSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
+		}
 	}
 }
 
@@ -182,6 +227,10 @@ void UCombatComponent::FireTimerFinished()
 	if (bFireButtonPressed && EquippedWeapon->bAutomatic)
 	{
 		Fire();
+	}
+	if (EquippedWeapon->IsEmpty())
+	{
+		Reload();
 	}
 }
 
