@@ -5,7 +5,6 @@
 void APirateHUD::BeginPlay()
 {
 	Super::BeginPlay();
-	AddCharacterOverlay();
 }
 
 void APirateHUD::AddCharacterOverlay()

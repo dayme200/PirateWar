@@ -1,6 +1,8 @@
 #include "PiratePlayerController.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
+#include "GameFramework/GameMode.h"
+#include "Net/UnrealNetwork.h"
 #include "PirateWar/Character/PirateCharacter.h"
 #include "PirateWar/HUD/PirateHUD.h"
 #include "PirateWar/HUD/CharacterOverlay.h"
@@ -19,6 +21,13 @@ void APiratePlayerController::Tick(float DeltaTime)
 
 	SetHUDTime();
 	CheckTimeSync(DeltaTime);
+	PollInit();
+}
+
+void APiratePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APiratePlayerController, MatchState);
 }
 
 void APiratePlayerController::CheckTimeSync(float DeltaTime)
@@ -46,6 +55,12 @@ void APiratePlayerController::SetHUDHealth(float Health, float MaxHealth)
 		FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 		PirateHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
 	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDHealth = Health;
+		MaxHealth = MaxHealth;
+	}
 }
 
 void APiratePlayerController::SetHUDScore(float Score)
@@ -60,6 +75,11 @@ void APiratePlayerController::SetHUDScore(float Score)
 		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
 		PirateHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
 	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDScore = Score;
+	}
 }
 
 void APiratePlayerController::SetHUDDefeat(int32 Defeat)
@@ -73,6 +93,11 @@ void APiratePlayerController::SetHUDDefeat(int32 Defeat)
 	{
 		FString DefeatText = FString::Printf(TEXT("%d"), Defeat);
 		PirateHUD->CharacterOverlay->DefeatAmount->SetText(FText::FromString(DefeatText));
+	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDDefeat = Defeat;
 	}
 }
 
@@ -143,6 +168,23 @@ void APiratePlayerController::ReceivedPlayer()
 	}
 }
 
+void APiratePlayerController::PollInit()
+{
+	if (CharacterOverlay == nullptr)
+	{
+		if (PirateHUD && PirateHUD->CharacterOverlay)
+		{
+			CharacterOverlay = PirateHUD->CharacterOverlay;
+			if (CharacterOverlay)
+			{
+				SetHUDHealth(HUDHealth, HUDMaxHealth);
+				SetHUDScore(HUDScore);
+				SetHUDDefeat(HUDDefeat);
+			}
+		}
+	}
+}
+
 void APiratePlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
 {
 	float ServerTimeOfReceipt = GetWorld()->GetTimeSeconds();
@@ -165,5 +207,30 @@ void APiratePlayerController::OnPossess(APawn* InPawn)
 	if (PirateCharacter)
 	{
 		SetHUDHealth(PirateCharacter->GetHealth(), PirateCharacter->GetMaxHealth());
+	}
+}
+
+void APiratePlayerController::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+	if (MatchState == MatchState::InProgress)
+	{
+		PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+		if (PirateHUD)
+		{
+			PirateHUD->AddCharacterOverlay();
+		}
+	}
+}
+
+void APiratePlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+		if (PirateHUD)
+		{
+			PirateHUD->AddCharacterOverlay();
+		}
 	}
 }

@@ -25,6 +25,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void OnMatchStateSet() override;
 	
 private:
 	float CountDownTime = 0.f;

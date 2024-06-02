@@ -32,6 +32,20 @@ void AMainGameMode::Tick(float DeltaSeconds)
 	}
 }
 
+void AMainGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APiratePlayerController* PiratePlayerController = Cast<APiratePlayerController>(*It);
+		if (PiratePlayerController)
+		{
+			PiratePlayerController->OnMatchStateSet(MatchState);
+		}
+	}
+}
+
 void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APiratePlayerController* VictimController,
                                      APiratePlayerController* AttackerController)
 {
