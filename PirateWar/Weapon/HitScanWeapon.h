@@ -18,4 +18,6 @@ private:
 	
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* ImpactParticle;
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* BeamParticle;
 };
