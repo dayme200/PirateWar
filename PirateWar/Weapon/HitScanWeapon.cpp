@@ -16,8 +16,8 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName("MuzzleFlash"));
 	if (MuzzleFlashSocket && InstigatorController)
 	{
-		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform((GetWeaponMesh()));
-		FVector Start = SocketTransform.GetLocation();
+		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		FVector Start = SocketTransform.GetLocation() + SocketTransform.GetRotation().GetForwardVector() * 50.f;
 		FVector End = Start + (HitTarget - Start) * 1.25;
 
 		FHitResult FireHit;
