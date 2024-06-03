@@ -112,6 +112,8 @@ private:
 	int32 StartingRocketAmmo = 8;
 	UPROPERTY(EditAnywhere)
 	int32 StartingPistolAmmo = 8;
+	UPROPERTY(EditAnywhere)
+	int32 StartingSMGAmmo = 45;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ZoomedFOV = 30.f;
@@ -125,6 +127,4 @@ private:
 	void OnRep_CombatState();
 
 	void UpdateAmmoValues();
-
-public:
 };
