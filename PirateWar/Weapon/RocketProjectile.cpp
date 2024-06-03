@@ -1,10 +1,10 @@
 #include "RocketProjectile.h"
+#include "Sound/SoundCue.h"
+#include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
-#include "Sound/SoundCue.h"
+#include "RocketMovementComponent.h"
 #include "Components/BoxComponent.h"
-#include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 
 ARocketProjectile::ARocketProjectile()
@@ -12,6 +12,13 @@ ARocketProjectile::ARocketProjectile()
 	RocketMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
 	RocketMesh->SetupAttachment(RootComponent);
 	RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent"));
+	RocketMovementComponent->bRotationFollowsVelocity = true;
+	RocketMovementComponent->SetIsReplicated(true);
+	RocketMovementComponent->ProjectileGravityScale = 0.f;
+	RocketMovementComponent->InitialSpeed = 1500.f;
+	RocketMovementComponent->MaxSpeed = 1500.f;
 }
 
 void ARocketProjectile::BeginPlay()

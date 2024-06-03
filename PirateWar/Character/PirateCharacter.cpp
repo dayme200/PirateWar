@@ -107,7 +107,7 @@ void APirateCharacter::OnRep_ReplicatedMovement()
 {
 	Super::OnRep_ReplicatedMovement();
 	SimProxiesTurn();
-	TimeSinceLastMovementReplication = 0.f;
+	TimeSinceLastMovementReplication = 0.f;	
 }
 
 void APirateCharacter::BeginPlay()
@@ -204,7 +204,7 @@ void APirateCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
-void APirateCharacter::PlayReloadMontage()
+	void APirateCharacter::PlayReloadMontage()
 {
 	if (Combat2 == nullptr || Combat2->EquippedWeapon == nullptr) return;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -215,6 +215,9 @@ void APirateCharacter::PlayReloadMontage()
 		switch (GetEquippedWeapon()->GetWeaponType())
 		{
 		case EWeaponType::EWT_AssaultRife:
+			SectionName = FName("Rifle");
+			break;
+		case EWeaponType::EWT_RocketLauncher:
 			SectionName = FName("Rifle");
 			break;
 		}

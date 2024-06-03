@@ -9,6 +9,9 @@ class PIRATEWAR_API ABulletProjectile : public AProjectile
 {
 	GENERATED_BODY()
 
+public:
+	ABulletProjectile();
+	
 protected:
 	virtual void OnHit(UPrimitiveComponent* HitComp,
 		AActor* OtherActor,

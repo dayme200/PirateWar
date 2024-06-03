@@ -3,8 +3,6 @@
 #include "PirateWar/PirateWar.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
-#include "PirateWar/Character/PirateCharacter.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 
 AProjectile::AProjectile()
 {
@@ -19,11 +17,6 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
-
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->InitialSpeed = 15000.f;
-	ProjectileMovementComponent->MaxSpeed = 15000.f;
 }
 
 void AProjectile::BeginPlay()
