@@ -108,6 +108,8 @@ private:
 	void InitializeCarriedAmmo();
 	UPROPERTY(EditAnywhere)
 	int32 StartingARAmmo = 30;
+	UPROPERTY(EditAnywhere)
+	int32 StartingRocketAmmo = 8;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ZoomedFOV = 30.f;

@@ -85,6 +85,7 @@ void APirateCharacter::MulticastElim_Implementation()
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
 	bDisableGameplay = true;
+	GetCharacterMovement()->DisableMovement();
 	if (Combat2)
 	{
 		Combat2->FireButtonPressed(false);

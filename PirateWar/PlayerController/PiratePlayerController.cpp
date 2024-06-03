@@ -327,7 +327,7 @@ void APiratePlayerController::HandleMatchHasStarted()
 	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
 	if (PirateHUD)
 	{
-		PirateHUD->AddCharacterOverlay();
+		if (PirateHUD->CharacterOverlay == nullptr) PirateHUD->AddCharacterOverlay();
 		if (PirateHUD->Announcement)
 		{
 			PirateHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
