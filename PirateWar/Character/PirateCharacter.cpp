@@ -237,6 +237,9 @@ void APirateCharacter::PlayFireMontage(bool bAiming)
 		case EWeaponType::EWT_SniperRife:
 			SectionName = FName("Rifle");
 			break;
+		case EWeaponType::EWT_GrenadeLauncher:
+			SectionName = FName("Rifle");
+			break;
 		}
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
