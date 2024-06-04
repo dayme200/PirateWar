@@ -7,8 +7,6 @@
 #include "PirateWar/Weapon/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
-#define TRACE_LENGTH 80000
-
 class AWeapon;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -114,6 +112,10 @@ private:
 	int32 StartingPistolAmmo = 8;
 	UPROPERTY(EditAnywhere)
 	int32 StartingSMGAmmo = 45;
+	UPROPERTY(EditAnywhere)
+	int32 StartingShotgunAmmo = 8;
+	UPROPERTY(EditAnywhere)
+	int32 StartingSniperRifleAmmo = 8;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ZoomedFOV = 30.f;

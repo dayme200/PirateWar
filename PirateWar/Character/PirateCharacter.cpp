@@ -92,6 +92,11 @@ void APirateCharacter::MulticastElim_Implementation()
 	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (IsLocallyControlled() && Combat2 && Combat2->bAiming && Combat2->EquippedWeapon && Combat2->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRife)
+	{
+		ShowSniperScopeWidget(false);
+	}
 }
 
 void APirateCharacter::ElimTimerFinished()
@@ -224,6 +229,12 @@ void APirateCharacter::PlayFireMontage(bool bAiming)
 			SectionName = FName("Pistol");
 			break;
 		case EWeaponType::EWT_SubmachineGun:
+			SectionName = FName("Rifle");
+			break;
+		case EWeaponType::EWT_Shotgun:
+			SectionName = FName("Shotgun");
+			break;
+		case EWeaponType::EWT_SniperRife:
 			SectionName = FName("Rifle");
 			break;
 		}

@@ -12,19 +12,33 @@ class PIRATEWAR_API AHitScanWeapon : public AWeapon
 public:
 	virtual void Fire(const FVector& HitTarget) override;
 
-private:
-	UPROPERTY(EditAnywhere)
-	float Damage = 20.f;
+protected:
+	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
+	void WeaponTraceHit(const FVector& TraceStart, const FVector& HitTarget, FHitResult& OutHit);
 	
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* ImpactParticle;
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* BeamParticle;
-
+	UPROPERTY(EditAnywhere)
+	USoundCue* Hitsound;
+	
+	UPROPERTY(EditAnywhere)
+	float Damage = 20.f;
+	
+private:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* MuzzleFlash;
 	UPROPERTY(EditAnywhere)
 	USoundCue* FireSound;
-	UPROPERTY(EditAnywhere)
-	USoundCue* Hitsound;
+
+	/*
+	 * Trace end with Scatter
+	 */
+	UPROPERTY(EditAnywhere, Category = Scatter)
+	float DistanceToSphere = 800.f;
+	UPROPERTY(EditAnywhere, Category = Scatter)
+	float SphereRadius = 75.f;
+	UPROPERTY(EditAnywhere, Category = Scatter)
+	bool bUseScatter = false;
 };
