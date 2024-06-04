@@ -24,11 +24,6 @@ protected:
 	);
 
 	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* TrailSystem;
-	UPROPERTY()
-	class UNiagaraComponent* TrailSystemComponent;
-
-	UPROPERTY(EditAnywhere)
 	USoundCue* ProjectileLoop;
 	UPROPERTY()
 	UAudioComponent* ProjectileLoopComponent;
@@ -39,10 +34,5 @@ protected:
 	class URocketMovementComponent* RocketMovementComponent;
 	
 private:
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* RocketMesh;
-	FTimerHandle DestroyHandle;
-	void DestroyTimerFinished();
-	UPROPERTY(EditAnywhere)
-	float DestroyTime = 3.f;
+
 };

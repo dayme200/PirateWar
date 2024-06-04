@@ -25,6 +25,9 @@ protected:
 		const FHitResult& Hit
 	);
 	
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* ProjectileMesh;
+	
 	UPROPERTY(EditAnywhere)
 	float Damage = 20.f;
 	UPROPERTY(EditAnywhere)
@@ -36,9 +39,29 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
+	
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* TrailSystem;
+	UPROPERTY()
+	class UNiagaraComponent* TrailSystemComponent;
+	void SpawnTrailSystem();
+
+	void StartDestroyTimer();
+	void DestroyTimerFinished();
+	void ExplodeDamage();
+
+	UPROPERTY(EditAnywhere)
+	float DamageInnerRadius = 200.f;
+	UPROPERTY(EditAnywhere)
+	float DamageOuterRadius = 500.f;
+	
 private:
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* Tracer;
 	UPROPERTY()
 	class UParticleSystemComponent* TracerComponent;
+
+	FTimerHandle DestroyHandle;
+	UPROPERTY(EditAnywhere)
+	float DestroyTime = 3.f;
 };
