@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "PirateWar/Character/PirateCharacter.h"
+#include "PirateWar/Component/CombatComponent.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
 
 AWeapon::AWeapon()
@@ -172,6 +173,11 @@ bool AWeapon::IsEmpty()
 	return Ammo <= 0;
 }
 
+bool AWeapon::IsFull()
+{
+	return Ammo == MagCapacity;
+}
+
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
 	if (PickupWidget)
@@ -224,6 +230,11 @@ void AWeapon::AddAmmo(int32 AddToAmmo)
 
 void AWeapon::OnRep_Ammo()
 {
+	PirateOwnerCharacter = PirateOwnerCharacter == nullptr ? Cast<APirateCharacter>(GetOwner()) : PirateOwnerCharacter;
+	if (PirateOwnerCharacter && PirateOwnerCharacter->GetCombat() && IsFull())
+	{
+		PirateOwnerCharacter->GetCombat()->JumpToShotgunEnd();
+	}
 	SetHUDAmmo();
 }
 

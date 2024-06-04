@@ -124,9 +124,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bAutomatic = true;
 	bool IsEmpty();
+	bool IsFull();
 	UPROPERTY(EditAnywhere)
 	class USoundBase* EquipSound;
-
 	
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
