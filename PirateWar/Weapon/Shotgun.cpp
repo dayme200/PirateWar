@@ -7,21 +7,20 @@
 
 void AShotgun::Fire(const FVector& HitTarget)
 {
-	AWeapon::Fire(HitTarget);
+	AWeapon::Fire(FVector());
 	
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (OwnerPawn == nullptr) return;
 	AController* InstigatorController = OwnerPawn->GetController();
 	
 	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName("MuzzleFlash"));
-	if (MuzzleFlashSocket && InstigatorController)
+	if (MuzzleFlashSocket)
 	{
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		FVector Start = SocketTransform.GetLocation() + SocketTransform.GetRotation().GetForwardVector() * 50.f;
-		uint32 Hits = 0;
-
+		FVector Start = SocketTransform.GetLocation() + SocketTransform.GetRotation().GetForwardVector() * 25.f;
+		
 		TMap<APirateCharacter*, uint32> HitMap;
-		for (uint32 i = 0; i< NumberOfPellets; i++)
+		for (uint32 i = 0; i < NumberOfPellets; i++)
 		{
 			FHitResult FireHit;
 			WeaponTraceHit(Start, HitTarget, FireHit);
@@ -38,6 +37,7 @@ void AShotgun::Fire(const FVector& HitTarget)
 					HitMap.Emplace(PirateCharacter, 1);
 				}
 			}
+
 			if (ImpactParticle)
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(
@@ -47,11 +47,11 @@ void AShotgun::Fire(const FVector& HitTarget)
 					FireHit.ImpactNormal.Rotation()
 				);
 			}
-			if (Hitsound)
+			if (HitSound)
 			{
 				UGameplayStatics::PlaySoundAtLocation(
 					this,
-					Hitsound,
+					HitSound,
 					FireHit.ImpactPoint,
 					.5f,
 					FMath::FRandRange(-.5f, .5f)
@@ -59,13 +59,13 @@ void AShotgun::Fire(const FVector& HitTarget)
 			}
 		}
 
-		for (auto HirPair : HitMap)
+		for (auto HitPair : HitMap)
 		{
-			if (HirPair.Key && HasAuthority() && InstigatorController)
+			if (HitPair.Key && HasAuthority() && InstigatorController)
 			{
 				UGameplayStatics::ApplyDamage(
-		HirPair.Key,
-					Damage * HirPair.Value,
+					HitPair.Key,
+					Damage * HitPair.Value,
 					InstigatorController,
 					this,
 					UDamageType::StaticClass()

@@ -19,11 +19,11 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 	if (MuzzleFlashSocket && InstigatorController)
 	{
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		FVector Start = SocketTransform.GetLocation() + SocketTransform.GetRotation().GetForwardVector() * 50.f;
+		FVector Start = SocketTransform.GetLocation() + SocketTransform.GetRotation().GetForwardVector() * 25.f;
 		FHitResult FireHit;
 		WeaponTraceHit(Start, HitTarget, FireHit);
 		APirateCharacter* PirateCharacter = Cast<APirateCharacter>(FireHit.GetActor());
-		if (PirateCharacter && HasAuthority() && InstigatorController)
+		if (PirateCharacter && HasAuthority() && InstigatorController && PirateCharacter != Cast<APirateCharacter>(PirateCharacter))
 		{
 			UGameplayStatics::ApplyDamage(
 	PirateCharacter,
@@ -42,12 +42,29 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				FireHit.ImpactNormal.Rotation()
 			);
 		}
-		if (Hitsound)
+		if (HitSound)
 		{
 			UGameplayStatics::PlaySoundAtLocation(
 				this,
-				Hitsound,
+				HitSound,
 				FireHit.ImpactPoint
+			);
+		}
+
+		if (MuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				MuzzleFlash,
+				SocketTransform
+			);
+		}
+		if (FireSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(
+				this,
+				FireSound,
+				GetActorLocation()
 			);
 		}
 	}
@@ -70,6 +87,10 @@ void AHitScanWeapon::WeaponTraceHit(const FVector& TraceStart, const FVector& Hi
 		{
 			BeamEnd = OutHit.ImpactPoint;
 		}
+		else
+		{
+			OutHit.ImpactPoint = End;
+		}
 		if (BeamParticle)
 		{
 			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
@@ -90,11 +111,18 @@ void AHitScanWeapon::WeaponTraceHit(const FVector& TraceStart, const FVector& Hi
 FVector AHitScanWeapon::TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget)
 {
 	FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-	FVector SpehreCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+	FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
 	FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
-	FVector EndLoc = SpehreCenter + RandVec;
-	FVector ToEndLoc = EndLoc + TraceStart;
+	FVector EndLoc = SphereCenter + RandVec;
+	FVector ToEndLoc = EndLoc - TraceStart;
 
-	DrawDebugSphere(GetWorld(), SpehreCenter, 12.f, 12.f, FColor::Red, false, 3.f);
-	return FVector(TraceStart + ToEndLoc * 80000.f / ToEndLoc.Size());
+	// DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, true);
+	// DrawDebugSphere(GetWorld(), EndLoc, 4.f, 12, FColor::Orange, true);
+	// DrawDebugLine(
+	// 	GetWorld(),
+	// 	TraceStart,
+	// 	FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size()),
+	// 	FColor::Cyan,
+	// 	true);
+	return FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size());
 }
