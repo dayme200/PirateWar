@@ -4,6 +4,8 @@
 #include "Weapon.h"
 #include "HitScanWeapon.generated.h"
 
+class USoundCue;
+
 UCLASS()
 class PIRATEWAR_API AHitScanWeapon : public AWeapon
 {

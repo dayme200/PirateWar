@@ -67,6 +67,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	UTexture2D* CrosshairBottom;
 
+	/*
+	 * Custom Depth
+	 */
+	void EnableCustomDepth(bool bEnable);
+	
 protected:
 	virtual void BeginPlay() override;
 	UFUNCTION()
