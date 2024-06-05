@@ -19,6 +19,19 @@ UCombatComponent::UCombatComponent()
 	AimWalkSpeed = 400.f;
 }
 
+void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
+{
+	if (CarriedAmmoMap.Contains(WeaponType))
+	{
+		CarriedAmmoMap[WeaponType] = FMath::Clamp(CarriedAmmoMap[WeaponType] + AmmoAmount, 0 ,MaxCarriedAmmo);
+		UpdateCarriedAmmo();
+	}
+	if (EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == WeaponType && !EquippedWeapon->IsFull())
+	{
+		Reload();
+	}
+}
+
 void UCombatComponent::ShotgunShellReload()
 {
 	if (Character && Character->HasAuthority())

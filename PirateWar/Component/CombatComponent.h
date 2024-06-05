@@ -36,6 +36,8 @@ public:
 	TSubclassOf<class AProjectile> GrenadeClass;
 	UFUNCTION(Server, Reliable)
 	void ServerLaunchGrenade(const FVector_NetQuantize& Target);
+
+	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
 	
 	FVector HitTarget;
 
@@ -130,6 +132,8 @@ private:
 	UFUNCTION()
 	void OnRep_CarriedAmmo();
 	TMap<EWeaponType, int32> CarriedAmmoMap;
+	UPROPERTY(EditAnywhere)
+	int32 MaxCarriedAmmo = 500;
 	void InitializeCarriedAmmo();
 	UPROPERTY(EditAnywhere)
 	int32 StartingARAmmo = 30;
