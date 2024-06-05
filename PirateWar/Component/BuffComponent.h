@@ -13,6 +13,8 @@ class PIRATEWAR_API UBuffComponent : public UActorComponent
 public:	
 	UBuffComponent();
 	friend class APirateCharacter;
+	void Heal(float HealAmount, float HealingTime);
+	void HealRampUp(float DeltaTime);
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
@@ -21,4 +23,8 @@ protected:
 private:
 	UPROPERTY()
 	class APirateCharacter* Character;
+
+	bool bHealing = false;
+	float HealingRate = 0.f;
+	float AmountToHeal = 0.f;
 };

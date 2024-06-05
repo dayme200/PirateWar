@@ -598,10 +598,13 @@ float APirateCharacter::CalculateSpeed()
 	return Velocity.Size();
 }
 
-void APirateCharacter::OnRep_Health()
+void APirateCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
-	PlayHitReactMontage();
+	if (Health < LastHealth)
+	{
+		PlayHitReactMontage();
+	}
 }
 
 void APirateCharacter::SetOverlappingWeapon(AWeapon* Weapon)
