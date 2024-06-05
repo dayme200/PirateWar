@@ -67,6 +67,7 @@ void APirateCharacter::PostInitializeComponents()
 	if (Buff)
 	{
 		Buff->Character = this;
+		Buff->SetInitialSpeed(GetCharacterMovement()->GetMaxSpeed(), GetCharacterMovement()->MaxWalkSpeedCrouched);
 	}
 }
 

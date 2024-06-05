@@ -2,15 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "Pickup.h"
-#include "HealthPickup.generated.h"
+#include "SpeedPickup.generated.h"
 
 UCLASS()
-class PIRATEWAR_API AHealthPickup : public APickup
+class PIRATEWAR_API ASpeedPickup : public APickup
 {
 	GENERATED_BODY()
-public:
-	AHealthPickup();
-	
+
 protected:
 	virtual void OnSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
@@ -23,7 +21,11 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere)
-	float HealAmount = 100.f;
+	float BaseSpeedBuff = 1600.f;
+
 	UPROPERTY(EditAnywhere)
-	float HealingTime = 5.f;
+	float CrouchSpeedBuff = 850.f;
+
+	UPROPERTY(EditAnywhere)
+	float SpeedBuffTime = 30.f;
 };

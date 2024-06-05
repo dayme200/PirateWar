@@ -1,8 +1,9 @@
 #include "Pickup.h"
-
-#include "Components/SphereComponent.h"
 #include "Sound/SoundCue.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/SphereComponent.h"
 #include "PirateWar/Weapon/WeaponTypes.h"
 
 APickup::APickup()
@@ -26,6 +27,10 @@ APickup::APickup()
 	PickupMesh->SetRelativeScale3D(FVector(5.f, 5.f, 5.f));
 	PickupMesh->SetRenderCustomDepth(true);
 	PickupMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+
+	
+	PickupEffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("PickupEffectComponent"));
+	PickupEffectComponent->SetupAttachment(RootComponent);
 }
 
 void APickup::BeginPlay()
@@ -62,6 +67,15 @@ void APickup::Destroyed()
 			GetWorld(),
 			PickupSound,
 			GetActorLocation()
+		);
+	}
+	if (PickupEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			PickupEffect,
+			GetActorLocation(),
+			GetActorRotation()
 		);
 	}
 }

@@ -1,14 +1,9 @@
-#include "HealthPickup.h"
+#include "SpeedPickup.h"
 #include "PirateWar/Component/BuffComponent.h"
 #include "PirateWar/Character/PirateCharacter.h"
 
-AHealthPickup::AHealthPickup()
-{
-	bReplicates = true;
-}
-
-void AHealthPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASpeedPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnSphereOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
@@ -18,7 +13,7 @@ void AHealthPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		UBuffComponent* Buff = Cast<UBuffComponent>(PirateCharacter->GetBuff());
 		if (Buff)
 		{
-			Buff->Heal(HealAmount, HealingTime);
+			Buff->BuffSpeed(BaseSpeedBuff, CrouchSpeedBuff, SpeedBuffTime);
 		}
 	}
 	Destroy();
