@@ -18,6 +18,7 @@ public:
 	void SetHUDCarriedAmmo(int32 Ammo);
 	void SetHUDMatchCountDown(float CountDownTime);
 	void SetHUDAnnouncementCountDown(float CountDownTime);
+	void SetHUDGrenade(int32 Grenade);
 
 protected:
 	virtual void BeginPlay() override;
@@ -75,4 +76,5 @@ public:
 	float HUDMaxHealth;
 	float HUDScore;
 	int32 HUDDefeat;
+	int32 HUDGrenade;
 };

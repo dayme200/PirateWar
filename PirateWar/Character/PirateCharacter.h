@@ -26,6 +26,7 @@ public:
 	void PlayReloadMontage();
 	void PlayHitReactMontage();
 	void PlayElimMontage();
+	void PlayThrowGrenadeMontage();
 
 	virtual void OnRep_ReplicatedMovement() override;
 	UPROPERTY(Replicated)
@@ -52,6 +53,7 @@ protected:
 	void AimButtonPressed();
 	void AimButtonReleased();
 	void ReloadButtonPressed();
+	void GrenadeButtonPressed();
 	virtual void Jump() override;
 
 	void SimProxiesTurn();
@@ -102,6 +104,8 @@ private:
 	UAnimMontage* HitReactMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* ElimMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* ThrowGrenadeMontage;
 
 	void HideCameraIfCharacterClose();
 	float CameraThreshold = 200.f;
@@ -138,6 +142,12 @@ private:
 
 	UPROPERTY()
 	class APiratePlayerState* PiratePlayerState;
+
+	/*
+	 * Grenade
+	 */
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* AttachedGrenade;
 	
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -157,4 +167,5 @@ public:
 	FORCEINLINE UCombatComponent* GetCombat() const { return Combat2; }
 	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
 	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
+	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 };

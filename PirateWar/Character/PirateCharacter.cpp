@@ -47,6 +47,10 @@ APirateCharacter::APirateCharacter()
 	TurningInPlace = ETurningInPlace::ETP_NotTurning;
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttachedGrenade"));
+	AttachedGrenade->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("GrenadeSocket"));
+	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void APirateCharacter::PostInitializeComponents()
@@ -56,6 +60,41 @@ void APirateCharacter::PostInitializeComponents()
 	{
 		Combat2->Character = this;
 	}
+}
+
+void APirateCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UpdateHUDHealth();
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &APirateCharacter::ReceiveDamage);
+	}
+	if (AttachedGrenade)
+	{
+		AttachedGrenade->SetVisibility(false);
+	}
+}
+
+void APirateCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	AMainGameMode* MainGameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(this));
+	bool bMatchNotInProgress = MainGameMode && MainGameMode->GetMatchState() != MatchState::InProgress;
+	if (Combat2 && Combat2->EquippedWeapon && bMatchNotInProgress)
+	{
+		Combat2->EquippedWeapon->Destroy();
+	}
+}
+
+void APirateCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	RotateInPlace(DeltaTime);
+	HideCameraIfCharacterClose();
+	PollInit();
 }
 
 void APirateCharacter::Elim()
@@ -115,37 +154,6 @@ void APirateCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;	
 }
 
-void APirateCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	UpdateHUDHealth();
-	if (HasAuthority())
-	{
-		OnTakeAnyDamage.AddDynamic(this, &APirateCharacter::ReceiveDamage);
-	}
-}
-
-void APirateCharacter::Destroyed()
-{
-	Super::Destroyed();
-
-	AMainGameMode* MainGameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(this));
-	bool bMatchNotInProgress = MainGameMode && MainGameMode->GetMatchState() != MatchState::InProgress;
-	if (Combat2 && Combat2->EquippedWeapon && bMatchNotInProgress)
-	{
-		Combat2->EquippedWeapon->Destroy();
-	}
-}
-
-void APirateCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	RotateInPlace(DeltaTime);
-	HideCameraIfCharacterClose();
-	PollInit();
-}
-
 void APirateCharacter::RotateInPlace(float DeltaTime)
 {
 	if (bDisableGameplay)
@@ -186,6 +194,7 @@ void APirateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APirateCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APirateCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APirateCharacter::ReloadButtonPressed);
+	PlayerInputComponent->BindAction("ThrowGrenade", IE_Pressed, this, &APirateCharacter::GrenadeButtonPressed);
 }
 
 void APirateCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -264,6 +273,15 @@ void APirateCharacter::PlayElimMontage()
 	if (AnimInstance && ElimMontage)
 	{
 		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
+void APirateCharacter::PlayThrowGrenadeMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ThrowGrenadeMontage)
+	{
+		AnimInstance->Montage_Play(ThrowGrenadeMontage);
 	}
 }
 
@@ -348,6 +366,14 @@ void APirateCharacter::ReloadButtonPressed()
 	if (Combat2)
 	{
 		Combat2->Reload();
+	}
+}
+
+void APirateCharacter::GrenadeButtonPressed()
+{
+	if (Combat2)
+	{
+		Combat2->ThrowGrenade();
 	}
 }
 
@@ -442,6 +468,7 @@ void APirateCharacter::AimOffset(float DeltaTime)
 void APirateCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 	AController* InstigatorController, AActor* DamageCauser)
 {
+	if (bElimmed) return;
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 	UpdateHUDHealth();
 	PlayHitReactMontage();

@@ -71,7 +71,7 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		}
 	}
 
-	bUseFABRIK = PirateCharacter->GetCombatState() != ECombatState::ECS_Reloading;
-	bUseOffsets = PirateCharacter->GetCombatState() != ECombatState::ECS_Reloading && !PirateCharacter->GetDisableGameplay();
-	bTransformRightHand = PirateCharacter->GetCombatState() != ECombatState::ECS_Reloading && !PirateCharacter->GetDisableGameplay();
+	bUseFABRIK = PirateCharacter->GetCombatState() == ECombatState::ECS_Unonccupired;
+	bUseOffsets = PirateCharacter->GetCombatState() == ECombatState::ECS_Unonccupired && !PirateCharacter->GetDisableGameplay();
+	bTransformRightHand = PirateCharacter->GetCombatState() == ECombatState::ECS_Unonccupired && !PirateCharacter->GetDisableGameplay();
 }

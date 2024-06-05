@@ -210,6 +210,23 @@ void APiratePlayerController::SetHUDAnnouncementCountDown(float CountDownTime)
 	}
 }
 
+void APiratePlayerController::SetHUDGrenade(int32 Grenade)
+{
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->GrenadeAmountText;
+
+	if (bHUDValid)
+	{
+		FString GrenadeText = FString::Printf(TEXT("%d"), Grenade);
+		PirateHUD->CharacterOverlay->GrenadeAmountText->SetText(FText::FromString(GrenadeText));
+	}
+	else
+	{
+		HUDGrenade = Grenade;
+	}
+}
+
 void APiratePlayerController::SetHUDTime()
 {
 	float TimeLeft = 0.f;
@@ -267,6 +284,11 @@ void APiratePlayerController::PollInit()
 				SetHUDHealth(HUDHealth, HUDMaxHealth);
 				SetHUDScore(HUDScore);
 				SetHUDDefeat(HUDDefeat);
+				APirateCharacter* PirateCharacter = Cast<APirateCharacter>(GetPawn());
+				if (PirateCharacter && PirateCharacter->GetCombat()->GetGrenade())
+				{
+					SetHUDGrenade(PirateCharacter->GetCombat()->GetGrenade());
+				}
 			}
 		}
 	}
