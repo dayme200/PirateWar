@@ -2,17 +2,18 @@
 #include "Net/UnrealNetwork.h"
 #include "PirateWar/PirateWar.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "PirateWar/Weapon/Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "PirateWar/Component/CombatComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "PirateWar/GameMode/MainGameMode.h"
-#include "PirateWar/PlayerController/PiratePlayerController.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "PirateWar/Component/BuffComponent.h"
+#include "PirateWar/Component/CombatComponent.h"
 #include "PirateWar/PlayerState/PiratePlayerState.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "PirateWar/PlayerController/PiratePlayerController.h"
 
 APirateCharacter::APirateCharacter()
 {
@@ -37,6 +38,9 @@ APirateCharacter::APirateCharacter()
 	Combat2 = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat2"));
 	Combat2->SetIsReplicated(true);
 
+	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("Buff"));
+	Buff->SetIsReplicated(true);
+
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
@@ -59,6 +63,10 @@ void APirateCharacter::PostInitializeComponents()
 	if (Combat2)
 	{
 		Combat2->Character = this;
+	}
+	if (Buff)
+	{
+		Buff->Character = this;
 	}
 }
 

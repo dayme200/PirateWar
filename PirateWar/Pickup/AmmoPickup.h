@@ -11,7 +11,6 @@ class PIRATEWAR_API AAmmoPickup : public APickup
 	GENERATED_BODY()
 	
 protected:
-	UFUNCTION()
 	virtual void OnSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
