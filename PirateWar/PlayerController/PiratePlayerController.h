@@ -85,4 +85,8 @@ public:
 	int32 HUDDefeat;
 	bool bInitializeGrenade = false;
 	int32 HUDGrenade;
+	float HUDCarriedAmmo;
+	bool bInitializeCarriedAmmo = false;
+	float HUDWeaponAmmo;
+	bool bInitializeWeaponAmmo = false;
 };

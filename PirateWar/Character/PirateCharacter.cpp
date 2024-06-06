@@ -72,10 +72,26 @@ void APirateCharacter::PostInitializeComponents()
 	}
 }
 
+void APirateCharacter::SpawnDefaultWeapon()
+{
+	AMainGameMode* MainGameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(this));
+	UWorld* World = GetWorld();
+	if (MainGameMode && World && !bElimmed && DefaultWeaponClass)
+	{
+		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+		StartingWeapon->bDestroyWeapon = true;
+		if (Combat2)
+		{
+			Combat2->EquipWeapon(StartingWeapon);
+		}
+	}
+}
+
 void APirateCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SpawnDefaultWeapon();
+	UpdateHUDAmmo();
 	UpdateHUDHealth();
 	UpdateHUDShield();
 	if (HasAuthority())
@@ -112,7 +128,14 @@ void APirateCharacter::Elim()
 {
 	if (Combat2 && Combat2->EquippedWeapon)
 	{
-		Combat2->EquippedWeapon->Dropped();
+		if (Combat2->EquippedWeapon->bDestroyWeapon)
+		{
+			Combat2->EquippedWeapon->Destroy();
+		}
+		else
+		{
+			Combat2->EquippedWeapon->Dropped();
+		}
 	}
 	MulticastElim();
 	GetWorldTimerManager().SetTimer(
@@ -528,6 +551,16 @@ void APirateCharacter::UpdateHUDShield()
 	if (PiratePlayerController)
 	{
 		PiratePlayerController->SetHUDShield(Shield, MaxShield);
+	}
+}
+
+void APirateCharacter::UpdateHUDAmmo()
+{
+	PiratePlayerController = PiratePlayerController == nullptr ? Cast<APiratePlayerController>(Controller) : PiratePlayerController;
+	if (PiratePlayerController && Combat2 && Combat2->EquippedWeapon)
+	{
+		PiratePlayerController->SetHUDCarriedAmmo(Combat2->CarriedAmmo);
+		PiratePlayerController->SetHUDWeaponAmmo(Combat2->EquippedWeapon->GetAmmo());
 	}
 }
 

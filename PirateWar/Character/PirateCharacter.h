@@ -37,6 +37,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
+
+	void SpawnDefaultWeapon();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -72,6 +74,8 @@ protected:
 	);
 	void PollInit();
 	void RotateInPlace(float DeltaTime);
+
+	void UpdateHUDAmmo();
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
@@ -163,6 +167,12 @@ private:
 	 */
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* AttachedGrenade;
+
+	/*
+	 * Default Weapon
+	 */
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 	
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
