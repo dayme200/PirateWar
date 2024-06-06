@@ -71,13 +71,18 @@ public:
 	UPROPERTY()
 	class UCharacterOverlay* CharacterOverlay;
 	void PollInit();
-	bool bInitializeCharacterOverlay = false;
 
+	
+	bool bInitializeHealth = false;
 	float HUDHealth;
 	float HUDMaxHealth;
+	bool bInitializeShield = false;
 	float HUDShield;
 	float HUDMaxShield;
+	bool bInitializeScore = false;
 	float HUDScore;
+	bool bInitializeDefeat = false;
 	int32 HUDDefeat;
+	bool bInitializeGrenade = false;
 	int32 HUDGrenade;
 };

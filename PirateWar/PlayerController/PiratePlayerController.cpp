@@ -98,9 +98,9 @@ void APiratePlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeHealth = true;
 		HUDHealth = Health;
-		MaxHealth = MaxHealth;
+		HUDMaxHealth = MaxHealth;
 	}
 }
 
@@ -121,7 +121,7 @@ void APiratePlayerController::SetHUDShield(float Shield, float MaxShield)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeShield = true;
 		HUDShield = Shield;
 		HUDMaxShield = MaxShield;
 	}
@@ -141,7 +141,7 @@ void APiratePlayerController::SetHUDScore(float Score)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeScore = true;
 		HUDScore = Score;
 	}
 }
@@ -160,7 +160,7 @@ void APiratePlayerController::SetHUDDefeat(int32 Defeat)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeDefeat = true;
 		HUDDefeat = Defeat;
 	}
 }
@@ -246,6 +246,7 @@ void APiratePlayerController::SetHUDGrenade(int32 Grenade)
 	}
 	else
 	{
+		bInitializeGrenade = true;
 		HUDGrenade = Grenade;
 	}
 }
@@ -304,14 +305,14 @@ void APiratePlayerController::PollInit()
 			CharacterOverlay = PirateHUD->CharacterOverlay;
 			if (CharacterOverlay)
 			{
-				SetHUDHealth(HUDHealth, HUDMaxHealth);
-				SetHUDShield(HUDShield, HUDMaxShield);
-				SetHUDScore(HUDScore);
-				SetHUDDefeat(HUDDefeat);
+				if (bInitializeHealth) SetHUDHealth(HUDHealth, HUDMaxHealth);
+				if (bInitializeShield) SetHUDShield(HUDShield, HUDMaxShield);
+				if (bInitializeScore) SetHUDScore(HUDScore);
+				if (bInitializeDefeat) SetHUDDefeat(HUDDefeat);
 				APirateCharacter* PirateCharacter = Cast<APirateCharacter>(GetPawn());
 				if (PirateCharacter && PirateCharacter->GetCombat()->GetGrenade())
 				{
-					SetHUDGrenade(PirateCharacter->GetCombat()->GetGrenade());
+					if (bInitializeGrenade) SetHUDGrenade(PirateCharacter->GetCombat()->GetGrenade());
 				}
 			}
 		}

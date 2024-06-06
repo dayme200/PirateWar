@@ -15,6 +15,8 @@ public:
 	friend class APirateCharacter;
 	void Heal(float HealAmount, float HealingTime);
 	void HealRampUp(float DeltaTime);
+	void ReplenishShield(float ShieldAmount, float ReplenishTime);
+	void ShieldRampUp(float DeltaTime);
 	void BuffSpeed(float BuffBaseSpeed, float BuffCrouchSpeed, float BuffTime);
 	void SetInitialSpeed(float BaseSpeed, float CrouchSpeed);
 	void BuffJump(float BuffJumpVelocity, float BuffTime);
@@ -34,6 +36,13 @@ private:
 	bool bHealing = false;
 	float HealingRate = 0.f;
 	float AmountToHeal = 0.f;
+
+	/*
+	 * Shield
+	 */
+	bool bReplenishingShield = false;
+	float ShieldReplenishRate = 0.f;
+	float ShieldReplenishAmount = 0.f;
 
 	/*
 	 * Speed
