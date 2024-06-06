@@ -213,6 +213,7 @@ void APirateCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME_CONDITION(APirateCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(APirateCharacter, Health);
+	DOREPLIFETIME(APirateCharacter, Shield);
 	DOREPLIFETIME(APirateCharacter, bDisableGameplay);
 }
 
@@ -504,6 +505,15 @@ void APirateCharacter::UpdateHUDHealth()
 	}
 }
 
+void APirateCharacter::UpdateHUDShield()
+{
+	PiratePlayerController = PiratePlayerController == nullptr ? Cast<APiratePlayerController>(Controller) : PiratePlayerController;
+	if (PiratePlayerController)
+	{
+		PiratePlayerController->SetHUDShield(Shield, MaxShield);
+	}
+}
+
 void APirateCharacter::PollInit()
 {
 	if (PiratePlayerState == nullptr)
@@ -604,6 +614,15 @@ void APirateCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
 	if (Health < LastHealth)
+	{
+		PlayHitReactMontage();
+	}
+}
+
+void APirateCharacter::OnRep_Shield(float LastShield)
+{
+	UpdateHUDShield();
+	if (Shield < LastShield)
 	{
 		PlayHitReactMontage();
 	}

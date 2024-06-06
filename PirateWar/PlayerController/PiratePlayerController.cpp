@@ -104,6 +104,29 @@ void APiratePlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 }
 
+void APiratePlayerController::SetHUDShield(float Shield, float MaxShield)
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->ShieldBar &&
+		PirateHUD->CharacterOverlay->ShieldText;
+	
+	if (bHUDValid)
+	{
+		const float ShieldPercent = Shield / MaxShield;
+		PirateHUD->CharacterOverlay->ShieldBar->SetPercent(ShieldPercent);
+		FString ShieldText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Shield), FMath::CeilToInt(MaxShield));
+		PirateHUD->CharacterOverlay->ShieldText->SetText(FText::FromString(ShieldText));
+	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDShield = Shield;
+		HUDMaxShield = MaxShield;
+	}
+}
+
 void APiratePlayerController::SetHUDScore(float Score)
 {
 	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
@@ -282,6 +305,7 @@ void APiratePlayerController::PollInit()
 			if (CharacterOverlay)
 			{
 				SetHUDHealth(HUDHealth, HUDMaxHealth);
+				SetHUDShield(HUDShield, HUDMaxShield);
 				SetHUDScore(HUDScore);
 				SetHUDDefeat(HUDDefeat);
 				APirateCharacter* PirateCharacter = Cast<APirateCharacter>(GetPawn());

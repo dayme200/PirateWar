@@ -29,6 +29,7 @@ public:
 	void PlayThrowGrenadeMontage();
 	
 	void UpdateHUDHealth();
+	void UpdateHUDShield();
 
 	virtual void OnRep_ReplicatedMovement() override;
 	UPROPERTY(Replicated)
@@ -123,7 +124,7 @@ private:
 	float CalculateSpeed();
 
 	/*
-	 * Player Health
+	 * Health
 	 */
 	UPROPERTY(EditAnywhere, Category = Stat)
 	float MaxHealth = 100.f;
@@ -132,6 +133,16 @@ private:
 	UFUNCTION()
 	void OnRep_Health(float LastHealth);
 
+	/*
+	 * Shield
+	 */
+	UPROPERTY(EditAnywhere, Category = Stat)
+	float MaxShield = 100.f;
+	UPROPERTY(ReplicatedUsing = OnRep_Shield, VisibleAnywhere, Category = Stat)
+	float Shield;
+	UFUNCTION()
+	void OnRep_Shield(float LastShield);
+	
 	UPROPERTY()
 	class APiratePlayerController* PiratePlayerController;
 

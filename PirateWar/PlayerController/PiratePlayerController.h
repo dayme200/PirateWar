@@ -12,6 +12,7 @@ class PIRATEWAR_API APiratePlayerController : public APlayerController
 public:
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetHUDHealth(float Health, float MaxHealth);
+	void SetHUDShield(float Shield, float MaxShield);
 	void SetHUDScore(float Score);
 	void SetHUDDefeat(int32 Defeat);
 	void SetHUDWeaponAmmo(int32 Ammo);
@@ -74,6 +75,8 @@ public:
 
 	float HUDHealth;
 	float HUDMaxHealth;
+	float HUDShield;
+	float HUDMaxShield;
 	float HUDScore;
 	int32 HUDDefeat;
 	int32 HUDGrenade;
