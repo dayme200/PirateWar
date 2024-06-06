@@ -125,7 +125,7 @@ void UCombatComponent::DropEquippedWeapon()
 
 void UCombatComponent::AttachActorToRightHand(AActor* ActorToAttach)
 {
-	if (Character == nullptr || Character->GetMesh() || ActorToAttach == nullptr) return;
+	if (Character == nullptr || Character->GetMesh() == nullptr || ActorToAttach == nullptr) return;
 	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	if (HandSocket)
 	{
