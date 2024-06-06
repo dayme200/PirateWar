@@ -40,4 +40,9 @@ private:
 	class USoundCue* PickupSound;
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* PickupMesh;
+
+	FTimerHandle BindOverlapTimer;
+
+	float BindOverlapTime = .2f;
+	void BindOverlapTimerFinished();
 };
