@@ -70,11 +70,14 @@ protected:
 	 */
 	void DropEquippedWeapon();
 	void AttachActorToRightHand(AActor* ActorToAttach);
+	void AttachActorToBack(AActor* ActorToAttach);
 	void AttachActorToLeftHand(AActor* ActorToAttach);
 	void UpdateCarriedAmmo();
-	void PlayEquipWeaponSound();
+	void PlayEquipWeaponSound(AWeapon* WeaponToEquip);
 	void ReloadEmptyWeapon();
-
+	void EquipPrimaryWeapon(AWeapon* WeaponToEquip);
+	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
+	
 	void ShowAttachedGrenade(bool bShowGrenade);
 	
 private:
@@ -89,6 +92,11 @@ private:
 	AWeapon* EquippedWeapon;
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+	UPROPERTY(ReplicatedUsing = OnRep_SecondaryWeapon)
+	AWeapon* SecondaryWeapon;
+	UFUNCTION()
+	void OnRep_SecondaryWeapon();
+	
 	UPROPERTY(Replicated)
 	bool bAiming;
 
