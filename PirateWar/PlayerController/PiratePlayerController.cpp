@@ -1,4 +1,6 @@
 #include "PiratePlayerController.h"
+
+#include "Components/Image.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/GameMode.h"
@@ -29,6 +31,7 @@ void APiratePlayerController::Tick(float DeltaTime)
 	SetHUDTime();
 	CheckTimeSync(DeltaTime);
 	PollInit();
+	CheckPing(DeltaTime);
 }
 
 void APiratePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -44,6 +47,71 @@ void APiratePlayerController::CheckTimeSync(float DeltaTime)
 	{
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
 		TimeSyncRunningTime = 0.f;
+	}
+}
+
+void APiratePlayerController::HighPingWarning()
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->HighPingImage &&
+		PirateHUD->CharacterOverlay->HighPingAnimation;
+	
+	if (bHUDValid)
+	{
+		PirateHUD->CharacterOverlay->HighPingImage->SetOpacity(1.f);
+		PirateHUD->CharacterOverlay->PlayAnimation(PirateHUD->CharacterOverlay->HighPingAnimation, 0.f, 5);
+	}
+}
+
+void APiratePlayerController::StopHighPingWarning()
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->HighPingImage &&
+		PirateHUD->CharacterOverlay->HighPingAnimation;
+	
+	if (bHUDValid)
+	{
+		PirateHUD->CharacterOverlay->HighPingImage->SetOpacity(1.f);
+		if (PirateHUD->CharacterOverlay->IsAnimationPlaying(PirateHUD->CharacterOverlay->HighPingAnimation))
+		{
+			PirateHUD->CharacterOverlay->StopAnimation(PirateHUD->CharacterOverlay->HighPingAnimation);
+		}
+	}
+}
+
+void APiratePlayerController::CheckPing(float DeltaTime)
+{
+	HighPingRunningTime += DeltaTime;
+	if (HighPingRunningTime > CheckPingFrequency)
+	{
+		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState>() : PlayerState;
+		if (PlayerState)
+		{
+			if (PlayerState->GetCompressedPing() * 4 > HighPingThreshold)
+			{
+				HighPingWarning();
+				PingAnimationRunningTime = 0.f;
+			}
+		}
+		HighPingRunningTime = 0.f;
+	}
+	
+	bool bHighPingAnimationPlaying = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->HighPingAnimation &&
+		PirateHUD->CharacterOverlay->IsAnimationPlaying(PirateHUD->CharacterOverlay->HighPingAnimation);
+	
+	if (bHighPingAnimationPlaying)
+	{
+		PingAnimationRunningTime += DeltaTime;
+		if (PingAnimationRunningTime > HighPingDuration)
+		{
+			StopHighPingWarning();
+		}
 	}
 }
 
