@@ -15,6 +15,15 @@ enum class EWeaponState : uint8
 	EWS_MAX UMETA(DisplayName = "Default Max"),
 };
 
+UENUM(BlueprintType)
+enum class EFireType : uint8
+{
+	EFT_HitScan UMETA(DisplayName = "Hit Scan Weapon"),
+	EFT_Projectile UMETA(DisplayName = "Projectile Weapon"),
+	EFT_Shotgun UMETA(DisplayName = "Shotgun Weapon"),
+	EFT_MAX UMETA(DisplayName = "Default Max"),
+};
+
 class UTexture2D;
 
 UCLASS()
@@ -32,6 +41,7 @@ public:
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
 	void AddAmmo(int32 AddToAmmo);
+	FVector TraceEndWithScatter(const FVector& HitTarget);
 
 	UPROPERTY(EditAnywhere, Category = WeaponProperties)
 	class UAnimationAsset* FireAnimation;
@@ -74,6 +84,12 @@ public:
 	void EnableCustomDepth(bool bEnable);
 
 	bool bDestroyWeapon = false;
+
+	UPROPERTY(EditAnywhere)
+	EFireType FireType;
+	
+	UPROPERTY(EditAnywhere, Category = Scatter)
+	bool bUseScatter = false;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -121,6 +137,14 @@ private:
 	float ZoomedFOV = 30.f;
 	UPROPERTY(EditAnywhere)
 	float ZoomInterpSpeed = 20.f;
+	
+	/*
+	 * Trace end with Scatter
+	 */
+	UPROPERTY(EditAnywhere, Category = Scatter)
+	float DistanceToSphere = 800.f;
+	UPROPERTY(EditAnywhere, Category = Scatter)
+	float SphereRadius = 75.f;
 	
 public:
 	void SetWeaponState(EWeaponState State);
