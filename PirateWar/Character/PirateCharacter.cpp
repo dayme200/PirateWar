@@ -126,17 +126,7 @@ void APirateCharacter::Tick(float DeltaTime)
 
 void APirateCharacter::Elim()
 {
-	if (Combat2 && Combat2->EquippedWeapon)
-	{
-		if (Combat2->EquippedWeapon->bDestroyWeapon)
-		{
-			Combat2->EquippedWeapon->Destroy();
-		}
-		else
-		{
-			Combat2->EquippedWeapon->Dropped();
-		}
-	}
+	DropOrDestroyWeapons();
 	MulticastElim();
 	GetWorldTimerManager().SetTimer(
 		ElimTimer,
@@ -144,6 +134,34 @@ void APirateCharacter::Elim()
 		&APirateCharacter::ElimTimerFinished,
 		ElimDelay
 	);
+}
+
+void APirateCharacter::DropOrDestroyWaepon(AWeapon* Weapon)
+{
+	if (Weapon == nullptr) return;
+	if (Weapon->bDestroyWeapon)
+	{
+		Weapon->Destroy();
+	}
+	else
+	{
+		Weapon->Dropped();
+	}
+}
+
+void APirateCharacter::DropOrDestroyWeapons()
+{
+	if (Combat2)
+	{
+		if (Combat2->EquippedWeapon)
+		{
+			DropOrDestroyWaepon(Combat2->EquippedWeapon);
+		}
+		if (Combat2->SecondaryWeapon)
+		{
+			DropOrDestroyWaepon(Combat2->SecondaryWeapon);
+		}
+	}
 }
 
 void APirateCharacter::MulticastElim_Implementation()
@@ -616,7 +634,14 @@ void APirateCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (Combat2)
 	{
-		Combat2->EquipWeapon(OverlappingWeapon);
+		if (OverlappingWeapon)
+		{
+			Combat2->EquipWeapon(OverlappingWeapon);
+		}
+		else if (Combat2->bShouldSwapWeapon())
+		{
+			Combat2->SwapWeapon();
+		}
 	}
 }
 

@@ -21,6 +21,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
+	void SwapWeapon();
+	
 	void Reload();
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
@@ -182,4 +184,5 @@ private:
 
 public:
 	FORCEINLINE int32 GetGrenade() const { return Grenade; }
+	bool bShouldSwapWeapon();
 };

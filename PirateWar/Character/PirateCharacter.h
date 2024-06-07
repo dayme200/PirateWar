@@ -76,6 +76,8 @@ protected:
 	void RotateInPlace(float DeltaTime);
 
 	void UpdateHUDAmmo();
+	void DropOrDestroyWaepon(class AWeapon* Weapon);
+	void DropOrDestroyWeapons();
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
