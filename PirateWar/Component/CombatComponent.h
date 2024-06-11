@@ -40,6 +40,7 @@ public:
 	void ServerLaunchGrenade(const FVector_NetQuantize& Target);
 
 	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
+	bool bLocallyReloading = false;
 	
 	FVector HitTarget;
 
@@ -99,8 +100,13 @@ private:
 	UFUNCTION()
 	void OnRep_SecondaryWeapon();
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_Aiming)
 	bool bAiming;
+
+	bool bAimingButtonPressed = false;
+	
+	UFUNCTION()
+	void OnRep_Aiming();
 
 	bool bFireButtonPressed;
 

@@ -746,3 +746,9 @@ ECombatState APirateCharacter::GetCombatState() const
 	if (Combat2 == nullptr) return ECombatState::ECS_MAX;
 	return Combat2->CombatState;
 }
+
+bool APirateCharacter::IsLocallyReloading()
+{
+	if (Combat2 == nullptr) return false;
+	return Combat2->bLocallyReloading;
+}
