@@ -81,6 +81,9 @@ public:
 	UBoxComponent* foot_l;
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* foot_r;
+
+	UPROPERTY()
+	TMap<FName, UBoxComponent*> HitCollisionBoxes;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -245,4 +248,5 @@ public:
 	FORCEINLINE void SetShield(float Amount) { Shield = Amount; }
 	FORCEINLINE float GetMaxShield() const { return MaxShield; }
 	bool IsLocallyReloading();
+	FORCEINLINE ULagCompensationComponent* GetLagCompensation() const { return LagCompensation; }
 };
