@@ -14,6 +14,7 @@
 #include "PirateWar/Component/CombatComponent.h"
 #include "PirateWar/PlayerState/PiratePlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PirateWar/Component/LagCompensationComponent.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
 
 APirateCharacter::APirateCharacter()
@@ -41,6 +42,8 @@ APirateCharacter::APirateCharacter()
 
 	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("Buff"));
 	Buff->SetIsReplicated(true);
+
+	LagCompensation = CreateDefaultSubobject<ULagCompensationComponent>(TEXT("LagCompensation"));
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
@@ -149,6 +152,14 @@ void APirateCharacter::PostInitializeComponents()
 		Buff->Character = this;
 		Buff->SetInitialSpeed(GetCharacterMovement()->GetMaxSpeed(), GetCharacterMovement()->MaxWalkSpeedCrouched);
 		Buff->SetInitialJumpVelocity(GetCharacterMovement()->JumpZVelocity);
+	}
+	if (LagCompensation)
+	{
+		LagCompensation->Character = this;
+		if (Controller)
+		{
+			LagCompensation->Controller = Cast<APiratePlayerController>(Controller);
+		}
 	}
 }
 

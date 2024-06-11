@@ -5,12 +5,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "PirateWar/HUD/PirateHUD.h"
 #include "PirateWar/Weapon/Weapon.h"
+#include "PirateWar/Weapon/Shotgun.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "PirateWar/Weapon/Projectile.h"
 #include "PirateWar/Character/PirateCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
-#include "PirateWar/Weapon/Shotgun.h"
 
 UCombatComponent::UCombatComponent()
 {
