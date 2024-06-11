@@ -21,12 +21,14 @@ public:
 	void SetHUDAnnouncementCountDown(float CountDownTime);
 	void SetHUDGrenade(int32 Grenade);
 
+	float SingleTripTime = 0.f;
+
+	virtual float GetServerTime();
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void SetHUDTime();
-	virtual float GetServerTime();
 	virtual void ReceivedPlayer() override;
 
 	/*

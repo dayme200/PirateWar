@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PirateWar/Character/PirateCharacter.h"
 #include "LagCompensationComponent.generated.h"
 
 USTRUCT(BlueprintType)
@@ -53,10 +54,20 @@ public:
 	friend class APirateCharacter;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void ShowFramePackage(const FFramePackage& Package, FColor Color);
+	
 	FServerSideRewindResult ServerSideRewind(class APirateCharacter* HitCharacter,
 		const FVector_NetQuantize& TraceStart,
 		const FVector_NetQuantize& HitLocation,
 		float HitTime
+	);
+
+	UFUNCTION(Server, Reliable)
+	void ServerScoreRequest(
+		APirateCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize& HitLocation,
+		float HitTime,
+		class AWeapon* DamageCauser
 	);
 
 protected:
@@ -76,6 +87,7 @@ protected:
 	void MoveBoxes(APirateCharacter* HitCharacter, const FFramePackage& Package);
 	void ResetHitBoxes(APirateCharacter* HitCharacter, const FFramePackage& Package);
 	void EnableCharacterMeshCollision(APirateCharacter* HitCharacter, ECollisionEnabled::Type CollisionEnabled);
+	void SaveFramePackage();
 	
 private:
 	UPROPERTY()

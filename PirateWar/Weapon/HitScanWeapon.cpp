@@ -4,6 +4,8 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PirateWar/Character/PirateCharacter.h"
+#include "PirateWar/Component/LagCompensationComponent.h"
+#include "PirateWar/PlayerController/PiratePlayerController.h"
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
@@ -21,15 +23,33 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		FHitResult FireHit;
 		WeaponTraceHit(Start, HitTarget, FireHit);
 		APirateCharacter* PirateCharacter = Cast<APirateCharacter>(FireHit.GetActor());
-		if (PirateCharacter && HasAuthority() && InstigatorController && PirateCharacter != Cast<APirateCharacter>(PirateCharacter))
+		if (PirateCharacter && InstigatorController && PirateCharacter != Cast<APirateCharacter>(PirateCharacter))
 		{
-			UGameplayStatics::ApplyDamage(
-	PirateCharacter,
-				Damage,
-				InstigatorController,
-				this,
-				UDamageType::StaticClass()
-			);
+			if (HasAuthority() && !bUseServerSideRewind)
+			{
+				UGameplayStatics::ApplyDamage(
+		PirateCharacter,
+					Damage,
+					InstigatorController,
+					this,
+					UDamageType::StaticClass()
+				);
+			}
+			else if (!HasAuthority() &&		bUseServerSideRewind)
+			{
+				PirateOwnerCharacter = PirateOwnerCharacter == nullptr ? Cast<APirateCharacter>(GetOwner()) : PirateOwnerCharacter;
+				PirateOwnerController = PirateOwnerController == nullptr ? Cast<APiratePlayerController>(InstigatorController) : PirateOwnerController;
+				if (PirateOwnerCharacter && PirateOwnerController && PirateOwnerCharacter->GetLagCompensation())
+				{
+					PirateOwnerCharacter->GetLagCompensation()->ServerScoreRequest(
+						PirateCharacter,
+						Start,
+						HitTarget,
+						PirateOwnerController->GetServerTime() - PirateOwnerController->SingleTripTime,
+						this
+					);
+				}
+			}
 		}
 		if (ImpactParticle)
 		{

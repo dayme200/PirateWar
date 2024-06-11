@@ -62,16 +62,12 @@ public:
 	int32 MagCapacity = 30.f;
 
 	int32 Sequence = 0;
-
-	UPROPERTY()
-	class APirateCharacter* PirateOwnerCharacter;
-	UPROPERTY()
-	class APiratePlayerController* PirateOwnerController;
+	
 	UPROPERTY(EditAnywhere)
 	EWeaponType WeaponType;
 	
 	/*
-	 * Textures for the weapon crosshairs
+	 * Textures for the weapon CrossHairs
 	 */
 	UPROPERTY(EditAnywhere)
 	UTexture2D* CrosshairCenter;
@@ -128,6 +124,16 @@ protected:
 	float DistanceToSphere = 800.f;
 	UPROPERTY(EditAnywhere, Category = Scatter)
 	float SphereRadius = 75.f;
+		
+	UPROPERTY(EditAnywhere)
+	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere)
+	bool bUseServerSideRewind = false;
+	UPROPERTY()
+	class APirateCharacter* PirateOwnerCharacter;
+	UPROPERTY()
+	class APiratePlayerController* PirateOwnerController;
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = WeaponProperties)
@@ -174,4 +180,5 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
+	FORCEINLINE float GetDamage() const { return Damage; }
 };
