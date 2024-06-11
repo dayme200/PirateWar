@@ -35,11 +35,11 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 					UDamageType::StaticClass()
 				);
 			}
-			else if (!HasAuthority() &&		bUseServerSideRewind)
+			else if (!HasAuthority() &&	bUseServerSideRewind)
 			{
 				PirateOwnerCharacter = PirateOwnerCharacter == nullptr ? Cast<APirateCharacter>(GetOwner()) : PirateOwnerCharacter;
 				PirateOwnerController = PirateOwnerController == nullptr ? Cast<APiratePlayerController>(InstigatorController) : PirateOwnerController;
-				if (PirateOwnerCharacter && PirateOwnerController && PirateOwnerCharacter->GetLagCompensation())
+				if (PirateOwnerCharacter && PirateOwnerController && PirateOwnerCharacter->GetLagCompensation() && PirateOwnerCharacter->IsLocallyControlled())
 				{
 					PirateOwnerCharacter->GetLagCompensation()->ServerScoreRequest(
 						PirateCharacter,

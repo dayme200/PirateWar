@@ -129,6 +129,9 @@ protected:
 	float Damage = 20.f;
 
 	UPROPERTY(EditAnywhere)
+	float HeadShotDamage = 40.f;
+
+	UPROPERTY(EditAnywhere)
 	bool bUseServerSideRewind = false;
 	UPROPERTY()
 	class APirateCharacter* PirateOwnerCharacter;

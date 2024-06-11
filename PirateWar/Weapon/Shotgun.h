@@ -11,6 +11,7 @@ class PIRATEWAR_API AShotgun : public AHitScanWeapon
 
 public:
 	virtual void Fire(const FVector& HitTarget) override;
+	void FireShotgun(const TArray<FVector_NetQuantize>& HitTargets);
 	void ShotgunTraceEndWithScatter(const FVector& HitTarget, TArray<FVector>& HitTargets);
 
 private:

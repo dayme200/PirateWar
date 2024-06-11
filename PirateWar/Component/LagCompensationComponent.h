@@ -30,6 +30,9 @@ struct FFramePackage
 
 	UPROPERTY()
 	TMap<FName, FBoxInformation> HitBoxInfo;
+
+	UPROPERTY()
+	APirateCharacter* Character;
 };
 
 USTRUCT(BlueprintType)
@@ -42,6 +45,18 @@ struct FServerSideRewindResult
 
 	UPROPERTY()
 	bool bHeadShot;
+};
+
+USTRUCT(BlueprintType)
+struct FShotgunServerSideRewindResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TMap<APirateCharacter*, uint32> HeadShots;
+
+	UPROPERTY()
+	TMap<APirateCharacter*, uint32> BodyShots;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -69,16 +84,33 @@ public:
 		float HitTime,
 		class AWeapon* DamageCauser
 	);
+	
+	FShotgunServerSideRewindResult ShotgunServerSideRewind(
+		const TArray<APirateCharacter*>& HitCharacters,
+		const FVector_NetQuantize& TraceStart,
+		const TArray<FVector_NetQuantize>& HitLocations,
+		float HitTime
+	);
 
+	UFUNCTION(Server, Reliable)
+	void ShotgunServerScoreRequest(
+		const TArray<APirateCharacter*>& HitCharacters,
+		const FVector_NetQuantize& TraceStart,
+		const TArray<FVector_NetQuantize>& HitLocations,
+		float HitTime
+	);
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void SaveFramePackage(FFramePackage& Package);
 	
-	FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame,
+	FFramePackage InterpBetweenFrames(
+		const FFramePackage& OlderFrame,
 		const FFramePackage& YoungerFrame,
 		float HitTime);
 	
-	FServerSideRewindResult ConfirmHit(const FFramePackage&	Package,
+	FServerSideRewindResult ConfirmHit(
+		const FFramePackage&	Package,
 		APirateCharacter* HitCharacter,
 		const FVector_NetQuantize& TraceStart,
 		const FVector_NetQuantize& HitLocation);
@@ -88,6 +120,18 @@ protected:
 	void ResetHitBoxes(APirateCharacter* HitCharacter, const FFramePackage& Package);
 	void EnableCharacterMeshCollision(APirateCharacter* HitCharacter, ECollisionEnabled::Type CollisionEnabled);
 	void SaveFramePackage();
+	FFramePackage GetFrameToCheck(APirateCharacter* HitCharacter, float HitTime);
+
+	/*
+	 * Shotgun
+	 */
+
+
+	FShotgunServerSideRewindResult ShotgunConfirmHit(
+		const TArray<FFramePackage>& FramePackages,
+		const FVector_NetQuantize& TraceStart,
+		const TArray<FVector_NetQuantize>& HitLocations
+	);
 	
 private:
 	UPROPERTY()
