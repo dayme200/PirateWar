@@ -207,7 +207,6 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 			}
 		}
 
-
 		if (!HasAuthority() && bUseServerSideRewind)
 		{
 			PirateOwnerCharacter = PirateOwnerCharacter == nullptr ? Cast<APirateCharacter>(OwnerPawn) : PirateOwnerCharacter;

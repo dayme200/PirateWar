@@ -28,9 +28,10 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 			bool bCauseAuthDamage = !bUseServerSideRewind || OwnerPawn->IsLocallyControlled();
 			if (HasAuthority() && bCauseAuthDamage)
 			{
+				const float DamageToCause = FireHit.BoneName.ToString() == FString("head") ? HeadShotDamage : Damage;
 				UGameplayStatics::ApplyDamage(
 		PirateCharacter,
-					Damage,
+					DamageToCause,
 					InstigatorController,
 					this,
 					UDamageType::StaticClass()
@@ -46,8 +47,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 						PirateCharacter,
 						Start,
 						HitTarget,
-						PirateOwnerController->GetServerTime() - PirateOwnerController->SingleTripTime,
-						this
+						PirateOwnerController->GetServerTime() - PirateOwnerController->SingleTripTime
 					);
 				}
 			}

@@ -696,8 +696,8 @@ void APirateCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 		}
 		else
 		{
-			Shield = 0.f;
 			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+			Shield = 0.f;
 		}
 	}
 	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
