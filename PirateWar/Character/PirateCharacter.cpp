@@ -1,9 +1,11 @@
 #include "PirateCharacter.h"
+#include "NiagaraComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "PirateWar/PirateWar.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
-#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/BoxComponent.h"
 #include "PirateWar/Weapon/Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/WidgetComponent.h"
@@ -15,6 +17,7 @@
 #include "PirateWar/PlayerState/PiratePlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PirateWar/Component/LagCompensationComponent.h"
+#include "PirateWar/GameState/MainGameState.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
 
 APirateCharacter::APirateCharacter()
@@ -189,6 +192,35 @@ void APirateCharacter::SpawnDefaultWeapon()
 	}
 }
 
+void APirateCharacter::MulticastGainedTheLead_Implementation()
+{
+	if (CrownSystem == nullptr) return;
+	if (CrownComponent == nullptr)
+	{
+		CrownComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			CrownSystem,
+			GetCapsuleComponent(),
+			FName(),
+			GetActorLocation() + FVector(0.f, 0.f, 110.f),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition,
+			false
+		);
+	}
+	if (CrownComponent)
+	{
+		CrownComponent->Activate();
+	}
+}
+
+void APirateCharacter::MulticastLostTheLead_Implementation()
+{
+	if (CrownComponent)
+	{
+		CrownComponent->DestroyComponent();
+	}
+}
+
 void APirateCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -230,12 +262,6 @@ void APirateCharacter::Elim(bool bPlayerLeftGame)
 {
 	DropOrDestroyWeapons();
 	MulticastElim(bPlayerLeftGame);
-	GetWorldTimerManager().SetTimer(
-		ElimTimer,
-		this,
-		&APirateCharacter::ElimTimerFinished,
-		ElimDelay
-	);
 }
 
 void APirateCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
@@ -263,6 +289,12 @@ void APirateCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	{
 		ShowSniperScopeWidget(false);
 	}
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&APirateCharacter::ElimTimerFinished,
+		ElimDelay
+	);
 }
 
 void APirateCharacter::DropOrDestroyWaepon(AWeapon* Weapon)
@@ -718,6 +750,13 @@ void APirateCharacter::PollInit()
 		{
 			PiratePlayerState->AddToScore(0.f);
 			PiratePlayerState->AddToDefeat(0);
+
+			AMainGameState* MainGameState = Cast<AMainGameState>(UGameplayStatics::GetGameState(this));
+
+			if (MainGameState && MainGameState->TopScoringPlayers.Contains(PiratePlayerState))
+			{
+				MulticastGainedTheLead();
+			}
 		}
 	}
 }

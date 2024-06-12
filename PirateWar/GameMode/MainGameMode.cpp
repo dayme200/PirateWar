@@ -77,8 +77,33 @@ void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APirate
 	
 	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState && MainGameState)
 	{
+		TArray<APiratePlayerState*> PlayersCurrentlyInTheLead;
+		for (auto LeadPlayer : MainGameState->TopScoringPlayers)
+		{
+			PlayersCurrentlyInTheLead.Add(LeadPlayer);
+		}
 		AttackerPlayerState->AddToScore(1.f);
 		MainGameState->UpdateTopScore(AttackerPlayerState);
+		if (MainGameState->TopScoringPlayers.Contains(AttackerPlayerState))
+		{
+			APirateCharacter* Leader = Cast<APirateCharacter>(AttackerPlayerState->GetPawn());
+			if (Leader)
+			{
+				Leader->MulticastGainedTheLead();
+			}
+		}
+
+		for (int32 i = 0; i < PlayersCurrentlyInTheLead.Num(); i++)
+		{
+			if (!MainGameState->TopScoringPlayers.Contains(PlayersCurrentlyInTheLead[i]))
+			{
+				APirateCharacter* Loser = Cast<APirateCharacter>(PlayersCurrentlyInTheLead[i]->GetPawn());
+				if (Loser)
+				{
+					Loser->MulticastLostTheLead();
+				}
+			}
+		}
 	}
 	if (VictimPlayerState)
 	{

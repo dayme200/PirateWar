@@ -93,6 +93,11 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerLeaveGame();
 	FOnLeftGame OnLeftGame;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastGainedTheLead();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLostTheLead();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -221,6 +226,11 @@ private:
 
 	bool bLeftGame = false;
 
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* CrownSystem;
+	UPROPERTY()
+	class UNiagaraComponent* CrownComponent;
+	
 	UPROPERTY()
 	class APiratePlayerState* PiratePlayerState;
 
