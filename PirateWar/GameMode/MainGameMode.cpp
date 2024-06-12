@@ -113,6 +113,14 @@ void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APirate
 	{
 		ElimmedCharacter->Elim(false);
 	}
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APiratePlayerController* PiratePlayer = Cast<APiratePlayerController>(*It);
+		if (PiratePlayer && AttackerPlayerState && VictimPlayerState)
+		{
+			PiratePlayer->BroadcastElim(AttackerPlayerState, VictimPlayerState);
+		}
+	}
 }
 
 void AMainGameMode::RequestRespawn(APirateCharacter* ElimmedCharacter, AController* ElimmedController)

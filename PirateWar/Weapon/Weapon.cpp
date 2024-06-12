@@ -169,7 +169,7 @@ void AWeapon::OnEquipped()
 	EnableCustomDepth(false);
 
 	PirateOwnerCharacter = PirateOwnerCharacter == nullptr ? Cast<APirateCharacter>(GetOwner()) : PirateOwnerCharacter;
-	if (PirateOwnerCharacter)
+	if (PirateOwnerCharacter && bUseServerSideRewind)
 	{
 		PirateOwnerController = PirateOwnerController == nullptr ? Cast<APiratePlayerController>(PirateOwnerCharacter->Controller) : PirateOwnerController;
 		if (PirateOwnerController && HasAuthority() && !PirateOwnerController->HighPingDelegate.IsBound())

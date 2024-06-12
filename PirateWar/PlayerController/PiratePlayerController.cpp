@@ -1,5 +1,4 @@
 #include "PiratePlayerController.h"
-
 #include "Components/Image.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/TextBlock.h"
@@ -9,11 +8,11 @@
 #include "PirateWar/HUD/PirateHUD.h"
 #include "PirateWar/HUD/Announcement.h"
 #include "PirateWar/HUD/CharacterOverlay.h"
-#include "PirateWar/GameMode/MainGameMode.h"
-#include "PirateWar/Character/PirateCharacter.h"
-#include "PirateWar/Component/CombatComponent.h"
-#include "PirateWar/GameState/MainGameState.h"
 #include "PirateWar/HUD/ReturnToMainMenu.h"
+#include "PirateWar/GameMode/MainGameMode.h"
+#include "PirateWar/GameState/MainGameState.h"
+#include "PirateWar/Component/CombatComponent.h"
+#include "PirateWar/Character/PirateCharacter.h"
 #include "PirateWar/PlayerState/PiratePlayerState.h"
 
 
@@ -144,6 +143,44 @@ void APiratePlayerController::ShowReturnToMainMenu()
 		else
 		{
 			ReturnToMainMenu->MenuTearDown();
+		}
+	}
+}
+
+void APiratePlayerController::BroadcastElim(APlayerState* Attacker, APlayerState* Victim)
+{
+	ClientElimAnnouncement(Attacker, Victim);
+}
+
+void APiratePlayerController::ClientElimAnnouncement_Implementation(APlayerState* Attacker, APlayerState* Victim)
+{
+	APlayerState* Self = GetPlayerState<APlayerState>();
+	if (Attacker && Victim && Self)
+	{
+		PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+		if (PirateHUD)
+		{
+			if (Attacker == Self && Victim != Self)
+			{
+				PirateHUD->AddElimAnnouncement("You", Victim->GetPlayerName());
+				return;
+			}
+			if (Victim == Self && Attacker != Self)
+			{
+				PirateHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "you");
+				return;
+			}
+			if (Attacker == Victim && Attacker == Self)
+			{
+				PirateHUD->AddElimAnnouncement("You", "yourself");
+				return;
+			}
+			if (Attacker == Victim && Attacker != Self)
+			{
+				PirateHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "themselves");
+				return;
+			}
+			PirateHUD->AddElimAnnouncement(Attacker->GetPlayerName(), Victim->GetPlayerName());
 		}
 	}
 }
