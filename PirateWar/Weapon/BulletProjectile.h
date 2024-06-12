@@ -12,6 +12,10 @@ class PIRATEWAR_API ABulletProjectile : public AProjectile
 public:
 	ABulletProjectile();
 	
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& Event) override;
+#endif
+	
 protected:
 	virtual void OnHit(UPrimitiveComponent* HitComp,
 		AActor* OtherActor,
@@ -19,4 +23,6 @@ protected:
 		FVector NormalImpulse,
 		const FHitResult& Hit
 	) override;
+
+	virtual void BeginPlay() override;
 };

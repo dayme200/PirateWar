@@ -92,6 +92,12 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = Scatter)
 	bool bUseScatter = false;
+		
+	UPROPERTY(EditAnywhere)
+	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere)
+	float HeadShotDamage = 40.f;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -124,12 +130,6 @@ protected:
 	float DistanceToSphere = 800.f;
 	UPROPERTY(EditAnywhere, Category = Scatter)
 	float SphereRadius = 75.f;
-		
-	UPROPERTY(EditAnywhere)
-	float Damage = 20.f;
-
-	UPROPERTY(EditAnywhere)
-	float HeadShotDamage = 40.f;
 
 	UPROPERTY(EditAnywhere)
 	bool bUseServerSideRewind = false;

@@ -14,6 +14,19 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Destroyed() override;
 
+	/*
+	 * Use with SSR
+	 */
+	bool bUseServerSideRewind = false;
+	FVector_NetQuantize TraceStart;
+	FVector_NetQuantize100 InitialVelocity;
+
+	UPROPERTY(EditAnywhere)
+	float InitialSpeed = 15000.f;
+		
+	UPROPERTY(EditAnywhere)
+	float Damage = 20.f;
+
 protected:
 	virtual void BeginPlay() override;
 	UFUNCTION()
@@ -27,9 +40,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* ProjectileMesh;
-	
-	UPROPERTY(EditAnywhere)
-	float Damage = 20.f;
+
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* ImpactParticle;
 	UPROPERTY(EditAnywhere)
