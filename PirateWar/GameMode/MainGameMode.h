@@ -22,7 +22,8 @@ public:
 		APiratePlayerController* AttackerController
 	);
 	virtual void RequestRespawn(class APirateCharacter* ElimmedCharacter, AController* ElimmedController);
-
+	void PlayerLeftGame(class APiratePlayerState* PlayerLeaving);
+	
 	UPROPERTY(EditDefaultsOnly)
 	float MatchTime = 120.f;
 	UPROPERTY(EditDefaultsOnly)

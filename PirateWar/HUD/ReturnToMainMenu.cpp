@@ -2,6 +2,7 @@
 #include "Components/Button.h"
 #include "GameFramework/GameModeBase.h"
 #include "MultiplayerSessionsSubsystem.h"
+#include "PirateWar/Character/PirateCharacter.h"
 
 void UReturnToMainMenu::MenuSetup()
 {
@@ -97,12 +98,36 @@ void UReturnToMainMenu::OnDestroySession(bool bWasSuccessful)
 	}
 }
 
+void UReturnToMainMenu::OnPlayerLeftGame()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnPlayerLeftGame()"))
+	if (MultiplayerSessionsSubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MultiplayerSessionsSubsystem valid"))
+		MultiplayerSessionsSubsystem->DestroySession();
+	}
+}
+
 void UReturnToMainMenu::ReturnButtonClicked()
 {
 	ReturnButton->SetIsEnabled(false);
 	
-	if (MultiplayerSessionsSubsystem)
+	UWorld* World = GetWorld();
+	if (World)
 	{
-		MultiplayerSessionsSubsystem->DestroySession();
+		APlayerController* FirstPlayerController = World->GetFirstPlayerController();
+		if (FirstPlayerController)
+		{
+			APirateCharacter* PirateCharacter = Cast<APirateCharacter>(FirstPlayerController->GetPawn());
+			if (PirateCharacter)
+			{
+				PirateCharacter->ServerLeaveGame();
+				PirateCharacter->OnLeftGame.AddDynamic(this, &UReturnToMainMenu::OnPlayerLeftGame);
+			}
+			else
+			{
+				ReturnButton->SetIsEnabled(true);
+			}
+		}
 	}
 }

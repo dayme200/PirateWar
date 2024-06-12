@@ -226,16 +226,43 @@ void APirateCharacter::Tick(float DeltaTime)
 	PollInit();
 }
 
-void APirateCharacter::Elim()
+void APirateCharacter::Elim(bool bPlayerLeftGame)
 {
 	DropOrDestroyWeapons();
-	MulticastElim();
+	MulticastElim(bPlayerLeftGame);
 	GetWorldTimerManager().SetTimer(
 		ElimTimer,
 		this,
 		&APirateCharacter::ElimTimerFinished,
 		ElimDelay
 	);
+}
+
+void APirateCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
+{
+	bLeftGame = bPlayerLeftGame;
+	if (PiratePlayerController)
+	{
+		PiratePlayerController->SetHUDWeaponAmmo(0);
+	}
+	bElimmed = true;
+	PlayElimMontage();
+
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	bDisableGameplay = true;
+	GetCharacterMovement()->DisableMovement();
+	if (Combat2)
+	{
+		Combat2->FireButtonPressed(false);
+	}
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (IsLocallyControlled() && Combat2 && Combat2->bAiming && Combat2->EquippedWeapon && Combat2->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRife)
+	{
+		ShowSniperScopeWidget(false);
+	}
 }
 
 void APirateCharacter::DropOrDestroyWaepon(AWeapon* Weapon)
@@ -266,38 +293,27 @@ void APirateCharacter::DropOrDestroyWeapons()
 	}
 }
 
-void APirateCharacter::MulticastElim_Implementation()
-{
-	if (PiratePlayerController)
-	{
-		PiratePlayerController->SetHUDWeaponAmmo(0);
-	}
-	bElimmed = true;
-	PlayElimMontage();
-
-	GetCharacterMovement()->DisableMovement();
-	GetCharacterMovement()->StopMovementImmediately();
-	bDisableGameplay = true;
-	GetCharacterMovement()->DisableMovement();
-	if (Combat2)
-	{
-		Combat2->FireButtonPressed(false);
-	}
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	if (IsLocallyControlled() && Combat2 && Combat2->bAiming && Combat2->EquippedWeapon && Combat2->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRife)
-	{
-		ShowSniperScopeWidget(false);
-	}
-}
 
 void APirateCharacter::ElimTimerFinished()
 {
 	AMainGameMode* MainGameMode = GetWorld()->GetAuthGameMode<AMainGameMode>();
-	if (MainGameMode)
+	if (MainGameMode && !bLeftGame)
 	{
 		MainGameMode->RequestRespawn(this, Controller);
+	}
+	if (bLeftGame && IsLocallyControlled())
+	{
+		OnLeftGame.Broadcast();
+	}
+}
+
+void APirateCharacter::ServerLeaveGame_Implementation()
+{
+	AMainGameMode* MainGameMode = GetWorld()->GetAuthGameMode<AMainGameMode>();
+	PiratePlayerState = PiratePlayerState == nullptr ? GetPlayerState<APiratePlayerState>() : PiratePlayerState;
+	if (MainGameMode && PiratePlayerState)
+	{
+		MainGameMode->PlayerLeftGame(PiratePlayerState);
 	}
 }
 

@@ -86,7 +86,7 @@ void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APirate
 	}
 	if (ElimmedCharacter)
 	{
-		ElimmedCharacter->Elim();
+		ElimmedCharacter->Elim(false);
 	}
 }
 
@@ -103,5 +103,20 @@ void AMainGameMode::RequestRespawn(APirateCharacter* ElimmedCharacter, AControll
 		UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), PlayerStarts);
 		int32 Selection = FMath::RandRange(0, PlayerStarts.Num() - 1);
 		RestartPlayerAtPlayerStart(ElimmedController, PlayerStarts[Selection]);
+	}
+}
+
+void AMainGameMode::PlayerLeftGame(APiratePlayerState* PlayerLeaving)
+{
+	if (PlayerLeaving == nullptr) return;
+	AMainGameState* MainGameState = GetGameState<AMainGameState>();
+	if (MainGameState && MainGameState->TopScoringPlayers.Contains(PlayerLeaving))
+	{
+		MainGameState->TopScoringPlayers.Remove(PlayerLeaving);
+	}
+	APirateCharacter* CharacterLeaving = Cast<APirateCharacter>(PlayerLeaving->GetPawn());
+	if (CharacterLeaving)
+	{
+		CharacterLeaving->Elim(true);
 	}
 }
