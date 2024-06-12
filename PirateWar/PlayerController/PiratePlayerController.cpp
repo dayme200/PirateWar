@@ -13,6 +13,7 @@
 #include "PirateWar/Character/PirateCharacter.h"
 #include "PirateWar/Component/CombatComponent.h"
 #include "PirateWar/GameState/MainGameState.h"
+#include "PirateWar/HUD/ReturnToMainMenu.h"
 #include "PirateWar/PlayerState/PiratePlayerState.h"
 
 
@@ -122,6 +123,27 @@ void APiratePlayerController::CheckPing(float DeltaTime)
 		if (PingAnimationRunningTime > HighPingDuration)
 		{
 			StopHighPingWarning();
+		}
+	}
+}
+
+void APiratePlayerController::ShowReturnToMainMenu()
+{
+	if (ReturnToMainMenu == nullptr) return;
+	if (ReturnToMainMenu == nullptr)
+	{
+		ReturnToMainMenu = CreateWidget<UReturnToMainMenu>(this, ReturnToMainMenuWidget);
+	}
+	if (ReturnToMainMenu)
+	{
+		bReturnToMainMenuOpen = !bReturnToMainMenuOpen;
+		if (bReturnToMainMenuOpen)
+		{
+			ReturnToMainMenu->MenuSetup();
+		}
+		else
+		{
+			ReturnToMainMenu->MenuTearDown();
 		}
 	}
 }
@@ -423,6 +445,14 @@ void APiratePlayerController::ClientReportServerTime_Implementation(float TimeOf
 	SingleTripTime = 0.5f + RoundTripTime;
 	float CurrentServerTime = TimeServerReceivedClientRequest + SingleTripTime;
 	ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+}
+
+void APiratePlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	if (InputComponent == nullptr) return;
+
+	InputComponent->BindAction("Quit", IE_Pressed, this, &APiratePlayerController::ShowReturnToMainMenu);
 }
 
 void APiratePlayerController::OnPossess(APawn* InPawn)

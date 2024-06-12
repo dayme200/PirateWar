@@ -28,12 +28,14 @@ public:
 	FHighPingDelegate HighPingDelegate;
 
 	virtual float GetServerTime();
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void SetHUDTime();
 	virtual void ReceivedPlayer() override;
+	virtual void SetupInputComponent() override;
 
 	/*
 	 * Sync time between client and server
@@ -60,6 +62,8 @@ protected:
 	void HighPingWarning();
 	void StopHighPingWarning();
 	void CheckPing(float DeltaTime);
+
+	void ShowReturnToMainMenu();
 	
 private:
 	UPROPERTY()
@@ -73,6 +77,12 @@ private:
 	float WarmupTime = 0.f;
 	float CooldownTime = 0.f;
 	uint32 CountDownInt = 0;
+
+	UPROPERTY(EditAnywhere, Category = HUD)
+	TSubclassOf<class UUserWidget> ReturnToMainMenuWidget;
+	UPROPERTY()
+	class UReturnToMainMenu* ReturnToMainMenu;
+	bool bReturnToMainMenuOpen = false;
 
 public:
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
