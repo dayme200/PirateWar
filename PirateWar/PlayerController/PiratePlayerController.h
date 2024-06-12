@@ -4,6 +4,8 @@
 #include "GameFramework/PlayerController.h"
 #include "PiratePlayerController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
+
 UCLASS()
 class PIRATEWAR_API APiratePlayerController : public APlayerController
 {
@@ -23,6 +25,8 @@ public:
 
 	float SingleTripTime = 0.f;
 
+	FHighPingDelegate HighPingDelegate;
+
 	virtual float GetServerTime();
 protected:
 	virtual void BeginPlay() override;
@@ -39,6 +43,10 @@ protected:
 	UFUNCTION(Client, Reliable)
 	void ClientReportServerTime(float TimeOfClientRequest, float TimeServerReceivedClientRequest);
 	float ClientServerDelta = 0.f;
+
+	UFUNCTION(Server, Reliable)
+	void ServerReportPingStatus(bool bHighPing);
+	
 	UPROPERTY(EditAnywhere, Category = Time)
 	float TimeSyncFrequency = 5.f;
 	float TimeSyncRunningTime = 0.f;
@@ -77,7 +85,6 @@ public:
 	UPROPERTY()
 	class UCharacterOverlay* CharacterOverlay;
 	void PollInit();
-
 	
 	bool bInitializeHealth = false;
 	float HUDHealth;

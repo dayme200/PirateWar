@@ -45,7 +45,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 						TargetRotator,
 						SpawnParams
 					);
-					SpawnedProjectile->bUseServerSideRewind = false;
+					SpawnedProjectile->bUseServerSideRewind = true;
 				}
 			}
 			else

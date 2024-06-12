@@ -72,9 +72,11 @@ void UPirateAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	}
 
 	bUseFABRIK = PirateCharacter->GetCombatState() == ECombatState::ECS_Unonccupired;
-	if (PirateCharacter->IsLocallyControlled() && PirateCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade)
+	bool bFABRIkOverride = PirateCharacter->IsLocallyControlled() &&
+		PirateCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade;
+	if (bFABRIkOverride)
 	{
-		bUseFABRIK = !PirateCharacter->IsLocallyReloading();
+		bUseFABRIK = !PirateCharacter->IsLocallyReloading() && PirateCharacter->bFinishedSwapping;
 	}
 	bUseOffsets = PirateCharacter->GetCombatState() == ECombatState::ECS_Unonccupired && !PirateCharacter->GetDisableGameplay();
 	bTransformRightHand = PirateCharacter->GetCombatState() == ECombatState::ECS_Unonccupired && !PirateCharacter->GetDisableGameplay();

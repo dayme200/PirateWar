@@ -67,6 +67,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon,WeaponState);
+	DOREPLIFETIME_CONDITION(AWeapon, bUseServerSideRewind, COND_OwnerOnly);
 }
 
 void AWeapon::OnRep_Owner()
@@ -142,6 +143,11 @@ void AWeapon::SetWeaponState(EWeaponState State)
 	OnWeaponStateSet();
 }
 
+void AWeapon::OnPingTooHigh(bool bPingTooHigh)
+{
+	bUseServerSideRewind = !bPingTooHigh;
+}
+
 void AWeapon::OnRep_WeaponState()
 {
 	OnWeaponStateSet();
@@ -161,6 +167,16 @@ void AWeapon::OnEquipped()
 		WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	}
 	EnableCustomDepth(false);
+
+	PirateOwnerCharacter = PirateOwnerCharacter == nullptr ? Cast<APirateCharacter>(GetOwner()) : PirateOwnerCharacter;
+	if (PirateOwnerCharacter)
+	{
+		PirateOwnerController = PirateOwnerController == nullptr ? Cast<APiratePlayerController>(PirateOwnerCharacter->Controller) : PirateOwnerController;
+		if (PirateOwnerController && HasAuthority() && !PirateOwnerController->HighPingDelegate.IsBound())
+		{
+			PirateOwnerController->HighPingDelegate.AddDynamic(this, &AWeapon::OnPingTooHigh);
+		}
+	}
 }
 
 void AWeapon::OnDropped()
@@ -179,6 +195,16 @@ void AWeapon::OnDropped()
 	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_PURPLE);
 	WeaponMesh->MarkRenderStateDirty();
 	EnableCustomDepth(true);
+
+	PirateOwnerCharacter = PirateOwnerCharacter == nullptr ? Cast<APirateCharacter>(GetOwner()) : PirateOwnerCharacter;
+	if (PirateOwnerCharacter)
+	{
+		PirateOwnerController = PirateOwnerController == nullptr ? Cast<APiratePlayerController>(PirateOwnerCharacter->Controller) : PirateOwnerController;
+		if (PirateOwnerController && HasAuthority() && PirateOwnerController->HighPingDelegate.IsBound())
+		{
+			PirateOwnerController->HighPingDelegate.RemoveDynamic(this, &AWeapon::OnPingTooHigh);
+		}
+	}
 }
 
 void AWeapon::OnEquippedSecondary()
@@ -199,6 +225,16 @@ void AWeapon::OnEquippedSecondary()
 	{
 		WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_PURPLE);
 		WeaponMesh->MarkRenderStateDirty();
+	}
+
+	PirateOwnerCharacter = PirateOwnerCharacter == nullptr ? Cast<APirateCharacter>(GetOwner()) : PirateOwnerCharacter;
+	if (PirateOwnerCharacter)
+	{
+		PirateOwnerController = PirateOwnerController == nullptr ? Cast<APiratePlayerController>(PirateOwnerCharacter->Controller) : PirateOwnerController;
+		if (PirateOwnerController && HasAuthority() && PirateOwnerController->HighPingDelegate.IsBound())
+		{
+			PirateOwnerController->HighPingDelegate.RemoveDynamic(this, &AWeapon::OnPingTooHigh);
+		}
 	}
 }
 

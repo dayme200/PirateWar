@@ -76,6 +76,13 @@ public:
 		float HitTime
 	);
 
+	FServerSideRewindResult ProjectileServerSideRewind(
+		class APirateCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize100& InitialVelocity,
+		float HitTime
+	);
+
 	UFUNCTION(Server, Reliable)
 	void ServerScoreRequest(
 		APirateCharacter* HitCharacter,
@@ -83,6 +90,14 @@ public:
 		const FVector_NetQuantize& HitLocation,
 		float HitTime,
 		class AWeapon* DamageCauser
+	);
+
+	UFUNCTION(Server, Reliable)
+	void ProjectileServerScoreRequest(
+		APirateCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize100& InitialVelocity,
+		float HitTime
 	);
 	
 	FShotgunServerSideRewindResult ShotgunServerSideRewind(
@@ -113,8 +128,23 @@ protected:
 		const FFramePackage&	Package,
 		APirateCharacter* HitCharacter,
 		const FVector_NetQuantize& TraceStart,
-		const FVector_NetQuantize& HitLocation);
+		const FVector_NetQuantize& HitLocation
+	);
 
+	FServerSideRewindResult ProjectileConfirmHit(
+		const FFramePackage& Package,
+		APirateCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize100& InitialVelocity,
+		float HitTime
+	);
+	
+	FShotgunServerSideRewindResult ShotgunConfirmHit(
+		const TArray<FFramePackage>& FramePackages,
+		const FVector_NetQuantize& TraceStart,
+		const TArray<FVector_NetQuantize>& HitLocations
+	);
+	
 	void CacheBoxPositions(APirateCharacter* HitCharacter, FFramePackage& OutFramePackage);
 	void MoveBoxes(APirateCharacter* HitCharacter, const FFramePackage& Package);
 	void ResetHitBoxes(APirateCharacter* HitCharacter, const FFramePackage& Package);
@@ -122,16 +152,7 @@ protected:
 	void SaveFramePackage();
 	FFramePackage GetFrameToCheck(APirateCharacter* HitCharacter, float HitTime);
 
-	/*
-	 * Shotgun
-	 */
-
-
-	FShotgunServerSideRewindResult ShotgunConfirmHit(
-		const TArray<FFramePackage>& FramePackages,
-		const FVector_NetQuantize& TraceStart,
-		const TArray<FVector_NetQuantize>& HitLocations
-	);
+	
 	
 private:
 	UPROPERTY()

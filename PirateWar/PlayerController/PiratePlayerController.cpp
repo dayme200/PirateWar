@@ -40,6 +40,11 @@ void APiratePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(APiratePlayerController, MatchState);
 }
 
+void APiratePlayerController::ServerReportPingStatus_Implementation(bool bHighPing)
+{
+	HighPingDelegate.Broadcast(bHighPing);
+}
+
 void APiratePlayerController::CheckTimeSync(float DeltaTime)
 {
 	TimeSyncRunningTime += DeltaTime;
@@ -85,6 +90,7 @@ void APiratePlayerController::StopHighPingWarning()
 
 void APiratePlayerController::CheckPing(float DeltaTime)
 {
+	if (HasAuthority()) return;
 	HighPingRunningTime += DeltaTime;
 	if (HighPingRunningTime > CheckPingFrequency)
 	{
@@ -95,6 +101,11 @@ void APiratePlayerController::CheckPing(float DeltaTime)
 			{
 				HighPingWarning();
 				PingAnimationRunningTime = 0.f;
+				ServerReportPingStatus(true);
+			}
+			else
+			{
+				ServerReportPingStatus(false);
 			}
 		}
 		HighPingRunningTime = 0.f;

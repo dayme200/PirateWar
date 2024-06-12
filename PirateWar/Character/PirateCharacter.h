@@ -27,6 +27,7 @@ public:
 	void PlayHitReactMontage();
 	void PlayElimMontage();
 	void PlayThrowGrenadeMontage();
+	void PlaySwapMontage();
 	
 	void UpdateHUDHealth();
 	void UpdateHUDShield();
@@ -39,6 +40,8 @@ public:
 	void ShowSniperScopeWidget(bool bShowScope);
 
 	void SpawnDefaultWeapon();
+
+	bool bFinishedSwapping = false;
 
 	/*
 	 * Hit boxes used for server-side rewind
@@ -164,6 +167,8 @@ private:
 	UAnimMontage* ElimMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* ThrowGrenadeMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* SwapMontage;
 
 	void HideCameraIfCharacterClose();
 	float CameraThreshold = 200.f;

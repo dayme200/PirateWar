@@ -2,6 +2,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "PirateWar/Character/PirateCharacter.h"
+#include "PirateWar/Component/LagCompensationComponent.h"
+#include "PirateWar/PlayerController/PiratePlayerController.h"
 
 ABulletProjectile::ABulletProjectile()
 {
@@ -32,13 +35,28 @@ void ABulletProjectile::PostEditChangeProperty(FPropertyChangedEvent& Event)
 void ABulletProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                               FVector NormalImpulse, const FHitResult& Hit)
 {
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	APirateCharacter* OwnerCharacter = Cast<APirateCharacter>(GetOwner());
 	if (OwnerCharacter)
 	{
-		AController* OwnerController = OwnerCharacter->Controller;
+		APiratePlayerController* OwnerController = Cast<APiratePlayerController>(OwnerCharacter->Controller);
 		if (OwnerController)
 		{
-			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+			if (OwnerCharacter->HasAuthority() && !bUseServerSideRewind)
+			{
+				UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+				Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
+				return;
+			}
+			APirateCharacter* HitCharacter = Cast<APirateCharacter>(OtherActor);
+			if (bUseServerSideRewind && OwnerCharacter->GetLagCompensation() && OwnerCharacter->IsLocallyControlled() && HitCharacter)
+			{
+				OwnerCharacter->GetLagCompensation()->ProjectileServerScoreRequest(
+					HitCharacter,
+					TraceStart,
+					InitialVelocity,
+					OwnerController->GetServerTime() - OwnerController->SingleTripTime
+				);
+			}
 		}
 	}
 	
@@ -49,18 +67,18 @@ void ABulletProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FPredictProjectilePathParams PathParams;
-	PathParams.bTraceWithChannel = true;
-	PathParams.bTraceWithCollision = true;
-	PathParams.DrawDebugTime = 5.f;
-	PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
-	PathParams.LaunchVelocity = GetActorForwardVector() * InitialSpeed;
-	PathParams.MaxSimTime = 4.f;
-	PathParams.ProjectileRadius = 5.f;
-	PathParams.SimFrequency = 30.f;
-	PathParams.StartLocation = GetActorLocation();
-	PathParams.TraceChannel = ECC_Visibility;
-	PathParams.ActorsToIgnore.Add(this);
-	FPredictProjectilePathResult PathResult;
-	UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
+	// FPredictProjectilePathParams PathParams;
+	// PathParams.bTraceWithChannel = true;
+	// PathParams.bTraceWithCollision = true;
+	// PathParams.DrawDebugTime = 5.f;
+	// PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
+	// PathParams.LaunchVelocity = GetActorForwardVector() * InitialSpeed;
+	// PathParams.MaxSimTime = 4.f;
+	// PathParams.ProjectileRadius = 5.f;
+	// PathParams.SimFrequency = 30.f;
+	// PathParams.StartLocation = GetActorLocation();
+	// PathParams.TraceChannel = ECC_Visibility;
+	// PathParams.ActorsToIgnore.Add(this);
+	// FPredictProjectilePathResult PathResult;
+	// UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
 }

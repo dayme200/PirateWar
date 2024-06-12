@@ -25,7 +25,8 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		APirateCharacter* PirateCharacter = Cast<APirateCharacter>(FireHit.GetActor());
 		if (PirateCharacter && InstigatorController && PirateCharacter != Cast<APirateCharacter>(PirateCharacter))
 		{
-			if (HasAuthority() && !bUseServerSideRewind)
+			bool bCauseAuthDamage = !bUseServerSideRewind || OwnerPawn->IsLocallyControlled();
+			if (HasAuthority() && bCauseAuthDamage)
 			{
 				UGameplayStatics::ApplyDamage(
 		PirateCharacter,

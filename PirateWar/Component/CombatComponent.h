@@ -24,8 +24,16 @@ public:
 	void SwapWeapon();
 	
 	void Reload();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishSwap();
+	
+	UFUNCTION(BlueprintCallable)
+	void FinishSwapAttachWeapon();
+	
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
+	
 	void FireButtonPressed(bool bPressed);
 	void ThrowGrenade();
 	UFUNCTION(Server,Reliable)
@@ -194,5 +202,5 @@ private:
 
 public:
 	FORCEINLINE int32 GetGrenade() const { return Grenade; }
-	bool bShouldSwapWeapon();
+	bool ShouldSwapWeapon();
 };

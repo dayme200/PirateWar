@@ -131,12 +131,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Scatter)
 	float SphereRadius = 75.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, EditAnywhere)
 	bool bUseServerSideRewind = false;
+	
 	UPROPERTY()
 	class APirateCharacter* PirateOwnerCharacter;
 	UPROPERTY()
 	class APiratePlayerController* PirateOwnerController;
+
+	UFUNCTION()
+	void OnPingTooHigh(bool bPingTooHigh);
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = WeaponProperties)
