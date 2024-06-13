@@ -7,6 +7,7 @@ void APiratePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APiratePlayerState, Defeat);
+	DOREPLIFETIME(APiratePlayerState, Team);
 }
 
 void APiratePlayerState::OnRep_Score()
@@ -49,6 +50,26 @@ void APiratePlayerState::AddToDefeat(int32 DefeatAmount)
 		{
 			Controller->SetHUDDefeat(Defeat);
 		}
+	}
+}
+
+void APiratePlayerState::OnRep_Team()
+{
+	APirateCharacter* BCharacter = Cast <APirateCharacter>(GetPawn());
+	if (BCharacter)
+	{
+		BCharacter->SetTeamColor(Team);
+	}
+}
+
+void APiratePlayerState::SetTeam(ETeam TeamToSet)
+{
+	Team = TeamToSet;
+
+	APirateCharacter* BCharacter = Cast <APirateCharacter>(GetPawn());
+	if (BCharacter)
+	{
+		BCharacter->SetTeamColor(Team);
 	}
 }
 

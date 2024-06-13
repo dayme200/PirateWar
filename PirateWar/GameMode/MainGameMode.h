@@ -23,6 +23,7 @@ public:
 	);
 	virtual void RequestRespawn(class APirateCharacter* ElimmedCharacter, AController* ElimmedController);
 	void PlayerLeftGame(class APiratePlayerState* PlayerLeaving);
+	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
 	
 	UPROPERTY(EditDefaultsOnly)
 	float MatchTime = 120.f;
@@ -32,6 +33,8 @@ public:
 	float CooldownTime = 5.f;
 	float LevelStartingTime = 0.f;
 
+	bool bTeamsMatch = false;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;

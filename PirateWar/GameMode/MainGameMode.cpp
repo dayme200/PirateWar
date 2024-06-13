@@ -63,7 +63,7 @@ void AMainGameMode::OnMatchStateSet()
 		APiratePlayerController* PiratePlayerController = Cast<APiratePlayerController>(*It);
 		if (PiratePlayerController)
 		{
-			PiratePlayerController->OnMatchStateSet(MatchState);
+			PiratePlayerController->OnMatchStateSet(MatchState, bTeamsMatch);
 		}
 	}
 }
@@ -152,4 +152,9 @@ void AMainGameMode::PlayerLeftGame(APiratePlayerState* PlayerLeaving)
 	{
 		CharacterLeaving->Elim(true);
 	}
+}
+
+float AMainGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+{
+	return BaseDamage;
 }

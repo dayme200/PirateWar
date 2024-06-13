@@ -2,6 +2,7 @@
 #include "NiagaraComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "PirateWar/PirateWar.h"
+#include "PirateWar/Type/Team.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -179,7 +180,7 @@ void APirateCharacter::PostInitializeComponents()
 
 void APirateCharacter::SpawnDefaultWeapon()
 {
-	AMainGameMode* MainGameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(this));
+	MainGameMode = MainGameMode == nullptr ? GetWorld()->GetAuthGameMode<AMainGameMode>() : MainGameMode;
 	UWorld* World = GetWorld();
 	if (MainGameMode && World && !bElimmed && DefaultWeaponClass)
 	{
@@ -199,7 +200,7 @@ void APirateCharacter::MulticastGainedTheLead_Implementation()
 	{
 		CrownComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
 			CrownSystem,
-			GetCapsuleComponent(),
+			GetMesh(),
 			FName(),
 			GetActorLocation() + FVector(0.f, 0.f, 110.f),
 			GetActorRotation(),
@@ -218,6 +219,23 @@ void APirateCharacter::MulticastLostTheLead_Implementation()
 	if (CrownComponent)
 	{
 		CrownComponent->DestroyComponent();
+	}
+}
+
+void APirateCharacter::SetTeamColor(ETeam Team)
+{
+	if (GetMesh() == nullptr || OriginalMaterial == nullptr) return;
+	switch (Team)
+	{
+	case ETeam::ET_NoTeam:
+		GetMesh()->SetMaterial(0, OriginalMaterial);
+		break;
+	case ETeam::ET_BlueTeam:
+		GetMesh()->SetMaterial(0, BlueMaterial);
+		break;
+	case ETeam::ET_RedTeam:
+		GetMesh()->SetMaterial(0, RedMaterial);
+		break;
 	}
 }
 
@@ -242,7 +260,7 @@ void APirateCharacter::Destroyed()
 {
 	Super::Destroyed();
 
-	AMainGameMode* MainGameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(this));
+	MainGameMode = MainGameMode == nullptr ? GetWorld()->GetAuthGameMode<AMainGameMode>() : MainGameMode;
 	bool bMatchNotInProgress = MainGameMode && MainGameMode->GetMatchState() != MatchState::InProgress;
 	if (Combat2 && Combat2->EquippedWeapon && bMatchNotInProgress)
 	{
@@ -284,6 +302,7 @@ void APirateCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if (IsLocallyControlled() && Combat2 && Combat2->bAiming && Combat2->EquippedWeapon && Combat2->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRife)
 	{
@@ -332,7 +351,7 @@ void APirateCharacter::DropOrDestroyWeapons()
 
 void APirateCharacter::ElimTimerFinished()
 {
-	AMainGameMode* MainGameMode = GetWorld()->GetAuthGameMode<AMainGameMode>();
+	MainGameMode = MainGameMode == nullptr ? GetWorld()->GetAuthGameMode<AMainGameMode>() : MainGameMode;
 	if (MainGameMode && !bLeftGame)
 	{
 		MainGameMode->RequestRespawn(this, Controller);
@@ -345,7 +364,7 @@ void APirateCharacter::ElimTimerFinished()
 
 void APirateCharacter::ServerLeaveGame_Implementation()
 {
-	AMainGameMode* MainGameMode = GetWorld()->GetAuthGameMode<AMainGameMode>();
+	MainGameMode = MainGameMode == nullptr ? GetWorld()->GetAuthGameMode<AMainGameMode>() : MainGameMode;
 	PiratePlayerState = PiratePlayerState == nullptr ? GetPlayerState<APiratePlayerState>() : PiratePlayerState;
 	if (MainGameMode && PiratePlayerState)
 	{
@@ -684,7 +703,9 @@ void APirateCharacter::AimOffset(float DeltaTime)
 void APirateCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 	AController* InstigatorController, AActor* DamageCauser)
 {
-	if (bElimmed) return;
+	MainGameMode = MainGameMode == nullptr ? GetWorld()->GetAuthGameMode<AMainGameMode>() : MainGameMode;
+	if (bElimmed || MainGameMode == nullptr) return;
+	Damage = MainGameMode->CalculateDamage(InstigatorController, Controller, Damage);
 
 	float DamageToHealth = Damage;
 	if (Shield > 0.f)
@@ -707,7 +728,6 @@ void APirateCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 
 	if (Health == 0.f)
 	{
-		AMainGameMode* MainGameMode = GetWorld()->GetAuthGameMode<AMainGameMode>();
 		if (MainGameMode)
 		{
 			PiratePlayerController = PiratePlayerController == nullptr ? Cast<APiratePlayerController>(Controller) : PiratePlayerController;
@@ -754,6 +774,7 @@ void APirateCharacter::PollInit()
 		{
 			PiratePlayerState->AddToScore(0.f);
 			PiratePlayerState->AddToDefeat(0);
+			SetTeamColor(PiratePlayerState->GetTeam());
 
 			AMainGameState* MainGameState = Cast<AMainGameState>(UGameplayStatics::GetGameState(this));
 
@@ -839,6 +860,10 @@ void APirateCharacter::HideCameraIfCharacterClose()
 		{
 			Combat2->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
 		}
+		if (Combat2 && Combat2->SecondaryWeapon && Combat2->SecondaryWeapon->GetWeaponMesh())
+		{
+			Combat2->SecondaryWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+		}
 	}
 	else
 	{
@@ -846,6 +871,10 @@ void APirateCharacter::HideCameraIfCharacterClose()
 		if (Combat2 && Combat2->EquippedWeapon && Combat2->EquippedWeapon->GetWeaponMesh())
 		{
 			Combat2->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+		}
+		if (Combat2 && Combat2->SecondaryWeapon && Combat2->SecondaryWeapon->GetWeaponMesh())
+		{
+			Combat2->SecondaryWeapon->GetWeaponMesh()->bOwnerNoSee = false;
 		}
 	}
 }

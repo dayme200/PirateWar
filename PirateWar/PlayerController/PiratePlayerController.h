@@ -30,6 +30,11 @@ public:
 	virtual float GetServerTime();
 
 	void BroadcastElim(APlayerState* Attacker, APlayerState* Victim);
+
+	void HideTeamScores();
+	void InitTeamScores();
+	void SetHUDRedTeamScore(int32 RedScore);
+	void SetHUDBlueTeamScore(int32 BlueScore);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -69,6 +74,12 @@ protected:
 
 	UFUNCTION(Client, Reliable)
 	void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim);
+
+	UPROPERTY(ReplicatedUsing = OnRep_ShowTeamScores)
+	bool bShowTeamScores = false;
+
+	UFUNCTION()
+	void OnRep_ShowTeamScores();
 	
 private:
 	UPROPERTY()
@@ -92,8 +103,8 @@ private:
 public:
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
 	FName MatchState;
-	void OnMatchStateSet(FName State);
-	void HandleMatchHasStarted();
+	void OnMatchStateSet(FName State, bool bTeamsMatch = false);
+	void HandleMatchHasStarted(bool bTeamsMatch = false);
 	void HandleCooldown();
 	UFUNCTION()
 	void OnRep_MatchState();

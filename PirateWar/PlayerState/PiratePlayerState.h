@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "PirateWar/Type/Team.h"
 #include "PiratePlayerState.generated.h"
 
 UCLASS()
@@ -25,5 +26,14 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_Defeat)
 	int32 Defeat;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_Team)
+	ETeam Team = ETeam::ET_NoTeam;
 
+	UFUNCTION()
+	void OnRep_Team();
+
+public:
+	FORCEINLINE ETeam GetTeam() const { return Team; }
+	void SetTeam(ETeam TeamToSet);
 };

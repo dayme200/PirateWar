@@ -38,6 +38,7 @@ void APiratePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APiratePlayerController, MatchState);
+	DOREPLIFETIME(APiratePlayerController, bShowTeamScores);
 }
 
 void APiratePlayerController::ServerReportPingStatus_Implementation(bool bHighPing)
@@ -147,9 +148,81 @@ void APiratePlayerController::ShowReturnToMainMenu()
 	}
 }
 
+void APiratePlayerController::OnRep_ShowTeamScores()
+{
+	if (bShowTeamScores)
+	{
+		InitTeamScores();
+	}
+	else
+	{
+		HideTeamScores();
+	}
+}
+
 void APiratePlayerController::BroadcastElim(APlayerState* Attacker, APlayerState* Victim)
 {
 	ClientElimAnnouncement(Attacker, Victim);
+}
+
+void APiratePlayerController::HideTeamScores()
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->RedTeamScore &&
+		PirateHUD->CharacterOverlay->BlueTeamScore &&
+		PirateHUD->CharacterOverlay->ScoreSpacerText;
+	if (bHUDValid)
+	{
+		PirateHUD->CharacterOverlay->RedTeamScore->SetText(FText());
+		PirateHUD->CharacterOverlay->BlueTeamScore->SetText(FText());
+		PirateHUD->CharacterOverlay->ScoreSpacerText->SetText(FText());
+	}
+}
+
+void APiratePlayerController::InitTeamScores()
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->RedTeamScore &&
+		PirateHUD->CharacterOverlay->BlueTeamScore &&
+		PirateHUD->CharacterOverlay->ScoreSpacerText;
+	if (bHUDValid)
+	{
+		FString Zero("0");
+		FString Spacer("|");
+		PirateHUD->CharacterOverlay->RedTeamScore->SetText(FText::FromString(Zero));
+		PirateHUD->CharacterOverlay->BlueTeamScore->SetText(FText::FromString(Zero));
+		PirateHUD->CharacterOverlay->ScoreSpacerText->SetText(FText::FromString(Spacer));
+	}
+}
+
+void APiratePlayerController::SetHUDRedTeamScore(int32 RedScore)
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->RedTeamScore;
+	if (bHUDValid)
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), RedScore);
+		PirateHUD->CharacterOverlay->RedTeamScore->SetText(FText::FromString(ScoreText));
+	}
+}
+
+void APiratePlayerController::SetHUDBlueTeamScore(int32 BlueScore)
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->BlueTeamScore;
+	if (bHUDValid)
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), BlueScore);
+		PirateHUD->CharacterOverlay->BlueTeamScore->SetText(FText::FromString(ScoreText));
+	}
 }
 
 void APiratePlayerController::ClientElimAnnouncement_Implementation(APlayerState* Attacker, APlayerState* Victim)
@@ -503,12 +576,12 @@ void APiratePlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
-void APiratePlayerController::OnMatchStateSet(FName State)
+void APiratePlayerController::OnMatchStateSet(FName State, bool bTeamsMatch)
 {
 	MatchState = State;
 	if (MatchState == MatchState::InProgress)
 	{
-		HandleMatchHasStarted();
+		HandleMatchHasStarted(bTeamsMatch);
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
@@ -528,8 +601,9 @@ void APiratePlayerController::OnRep_MatchState()
 	}
 }
 
-void APiratePlayerController::HandleMatchHasStarted()
+void APiratePlayerController::HandleMatchHasStarted(bool bTeamsMatch)
 {
+	if (HasAuthority()) bShowTeamScores = bTeamsMatch;
 	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
 	if (PirateHUD)
 	{
@@ -537,6 +611,15 @@ void APiratePlayerController::HandleMatchHasStarted()
 		if (PirateHUD->Announcement)
 		{
 			PirateHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
+		}
+		if (!HasAuthority()) return;
+		if (bTeamsMatch)
+		{
+			InitTeamScores();
+		}
+		else
+		{
+			HideTeamScores();
 		}
 	}
 }

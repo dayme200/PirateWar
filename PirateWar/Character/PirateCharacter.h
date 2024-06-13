@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../Type/TurningInPlace.h"
+#include "PirateWar/Type/Team.h"
 #include "PirateWar/Type/CombatState.h"
 #include "PirateWar/Interface/InteractWithCrosshairInterface.h"
 #include "PirateCharacter.generated.h"
@@ -98,6 +99,8 @@ public:
 	void MulticastGainedTheLead();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLostTheLead();
+
+	void SetTeamColor(ETeam Team);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -216,6 +219,18 @@ private:
 	class APiratePlayerController* PiratePlayerController;
 
 	/*
+	* Team colors
+	*/
+	UPROPERTY(EditAnywhere, Category = Elim)
+	UMaterialInstance* RedMaterial;
+	
+	UPROPERTY(EditAnywhere, Category = Elim)
+	UMaterialInstance* BlueMaterial;
+
+	UPROPERTY(EditAnywhere, Category = Elim)
+	UMaterialInstance* OriginalMaterial;
+	
+	/*
 	 * Elim
 	 */
 	bool bElimmed = false;
@@ -245,6 +260,9 @@ private:
 	 */
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+	UPROPERTY()
+	class AMainGameMode* MainGameMode;
 	
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
