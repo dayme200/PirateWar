@@ -90,6 +90,7 @@ protected:
 	void AttachActorToRightHand(AActor* ActorToAttach);
 	void AttachActorToBack(AActor* ActorToAttach);
 	void AttachActorToLeftHand(AActor* ActorToAttach);
+	void AttachFlagToLeftHand(AWeapon* Flag);
 	void UpdateCarriedAmmo();
 	void PlayEquipWeaponSound(AWeapon* WeaponToEquip);
 	void ReloadEmptyWeapon();
@@ -207,6 +208,14 @@ private:
 	int32 MaxGrenade = 4;
 	void UpdateHUDGrenade();
 
+	UPROPERTY(ReplicatedUsing = OnRep_HoldingTheFlag)
+	bool bHoldingTheFlag = false;
+	UFUNCTION()
+	void OnRep_HoldingTheFlag();
+
+	UPROPERTY()
+	AWeapon* TheFlag;
+	
 public:
 	FORCEINLINE int32 GetGrenade() const { return Grenade; }
 	bool ShouldSwapWeapon();

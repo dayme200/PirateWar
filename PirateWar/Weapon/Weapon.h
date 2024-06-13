@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "PirateWar/Type/Team.h"
 #include "PirateWar/Weapon/WeaponTypes.h"
 #include "Weapon.generated.h"
 
@@ -39,7 +40,7 @@ public:
 	void SetHUDAmmo();
 	void ShowPickupWidget(bool bShowWidget);
 	virtual void Fire(const FVector& HitTarget);
-	void Dropped();
+	virtual void Dropped();
 	void AddAmmo(int32 AddToAmmo);
 	FVector TraceEndWithScatter(const FVector& HitTarget);
 
@@ -164,6 +165,9 @@ private:
 	float ZoomedFOV = 30.f;
 	UPROPERTY(EditAnywhere)
 	float ZoomInterpSpeed = 20.f;
+
+	UPROPERTY(EditAnywhere)
+	ETeam Team;
 	
 public:
 	void SetWeaponState(EWeaponState State);
@@ -189,4 +193,6 @@ public:
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 	FORCEINLINE float GetDamage() const { return Damage; }
 	FORCEINLINE float GetHeadShotDamage() const { return HeadShotDamage; }
+	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
+	FORCEINLINE ETeam GetTeam() const { return Team; }
 };

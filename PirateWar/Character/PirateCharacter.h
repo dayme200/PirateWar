@@ -140,6 +140,9 @@ protected:
 	void UpdateHUDAmmo();
 	void DropOrDestroyWaepon(class AWeapon* Weapon);
 	void DropOrDestroyWeapons();
+
+	void SetSpawnPoint();
+	void OnPlayerStateInitialized();
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
@@ -290,4 +293,7 @@ public:
 	FORCEINLINE float GetMaxShield() const { return MaxShield; }
 	bool IsLocallyReloading();
 	FORCEINLINE ULagCompensationComponent* GetLagCompensation() const { return LagCompensation; }
+	bool IsHoldingTheFlag();
+	ETeam GetTeam();
+	void SetHoldingTheFlag(bool bHolding);
 };

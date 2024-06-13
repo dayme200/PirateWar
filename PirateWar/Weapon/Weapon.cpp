@@ -107,6 +107,8 @@ void AWeapon::OnSphereoverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	APirateCharacter* PirateCharacter = Cast<APirateCharacter>(OtherActor);
 	if (PirateCharacter && PickupWidget)
 	{
+		if (WeaponType == EWeaponType::EWT_Flag && PirateCharacter->GetTeam() == Team) return;
+		if (PirateCharacter->IsHoldingTheFlag()) return;
 		PirateCharacter->SetOverlappingWeapon(this);
 	}
 }
@@ -117,6 +119,8 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	APirateCharacter* PirateCharacter = Cast<APirateCharacter>(OtherActor);
 	if (PirateCharacter && PickupWidget)
 	{
+		if (WeaponType == EWeaponType::EWT_Flag && PirateCharacter->GetTeam() == Team) return;
+		if (PirateCharacter->IsHoldingTheFlag()) return;
 		PirateCharacter->SetOverlappingWeapon(nullptr);
 	}
 }

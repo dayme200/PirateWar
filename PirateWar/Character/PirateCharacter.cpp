@@ -13,12 +13,13 @@
 #include "Components/CapsuleComponent.h"
 #include "PirateWar/GameMode/MainGameMode.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "PirateWar/GameState/MainGameState.h"
 #include "PirateWar/Component/BuffComponent.h"
 #include "PirateWar/Component/CombatComponent.h"
+#include "PirateWar/PlayerStart/TeamPlayerStart.h"
 #include "PirateWar/PlayerState/PiratePlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PirateWar/Component/LagCompensationComponent.h"
-#include "PirateWar/GameState/MainGameState.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
 
 APirateCharacter::APirateCharacter()
@@ -345,7 +346,45 @@ void APirateCharacter::DropOrDestroyWeapons()
 		{
 			DropOrDestroyWaepon(Combat2->SecondaryWeapon);
 		}
+		if (Combat2->TheFlag)
+		{
+			Combat2->TheFlag->Dropped();
+		}
 	}
+}
+
+void APirateCharacter::SetSpawnPoint()
+{
+	if (HasAuthority() && PiratePlayerState->GetTeam() != ETeam::ET_NoTeam)
+	{
+		TArray<AActor*> PlayerStarts;
+		UGameplayStatics::GetAllActorsOfClass(this, ATeamPlayerStart::StaticClass(), PlayerStarts);
+		TArray<ATeamPlayerStart*> TeamPlayerStarts;
+		for (auto Start : PlayerStarts)
+		{
+			ATeamPlayerStart* TeamStart = Cast<ATeamPlayerStart>(Start);
+			if (TeamStart && TeamStart->Team == PiratePlayerState->GetTeam())
+			{
+				TeamPlayerStarts.Add(TeamStart);
+			}
+		}
+		if (TeamPlayerStarts.Num() > 0)
+		{
+			ATeamPlayerStart* ChosenPlayerStart = TeamPlayerStarts[FMath::RandRange(0, TeamPlayerStarts.Num() - 1)];
+			SetActorLocationAndRotation(
+				ChosenPlayerStart->GetActorLocation(),
+				ChosenPlayerStart->GetActorRotation()
+			);
+		}
+	}
+}
+
+void APirateCharacter::OnPlayerStateInitialized()
+{
+	PiratePlayerState->AddToScore(0.f);
+	PiratePlayerState->AddToDefeat(0);
+	SetTeamColor(PiratePlayerState->GetTeam());
+	SetSpawnPoint();
 }
 
 
@@ -381,6 +420,15 @@ void APirateCharacter::OnRep_ReplicatedMovement()
 
 void APirateCharacter::RotateInPlace(float DeltaTime)
 {
+	if (Combat2 && Combat2->bHoldingTheFlag)
+	{
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		TurningInPlace = ETurningInPlace::ETP_NotTurning;
+		return;
+	}
+	if (Combat2 && Combat2->EquippedWeapon) GetCharacterMovement()->bOrientRotationToMovement = false;
+	if (Combat2 && Combat2->EquippedWeapon) bUseControllerRotationYaw = true;
 	if (bDisableGameplay)
 	{
 		bUseControllerRotationYaw = false;
@@ -554,6 +602,7 @@ void APirateCharacter::LookUp(float Value)
 
 void APirateCharacter::CrouchButtonPressed()
 {
+	if (Combat2 && Combat2->bHoldingTheFlag) return;
 	if (bDisableGameplay) return;
 	if (bIsCrouched) UnCrouch();
 	else Crouch();
@@ -561,6 +610,7 @@ void APirateCharacter::CrouchButtonPressed()
 
 void APirateCharacter::FireButtonPressed()
 {
+	if (Combat2 && Combat2->bHoldingTheFlag) return;
 	if (bDisableGameplay) return;
 	if (Combat2)
 	{
@@ -570,6 +620,7 @@ void APirateCharacter::FireButtonPressed()
 
 void APirateCharacter::FireButtonReleased()
 {
+	if (Combat2 && Combat2->bHoldingTheFlag) return;
 	if (bDisableGameplay) return;
 	if (Combat2)
 	{
@@ -579,6 +630,7 @@ void APirateCharacter::FireButtonReleased()
 
 void APirateCharacter::AimButtonPressed()
 {
+	if (Combat2 && Combat2->bHoldingTheFlag) return;
 	if (bDisableGameplay) return;
 	if (Combat2)
 	{
@@ -588,6 +640,7 @@ void APirateCharacter::AimButtonPressed()
 
 void APirateCharacter::AimButtonReleased()
 {
+	if (Combat2 && Combat2->bHoldingTheFlag) return;
 	if (bDisableGameplay) return;
 	if (Combat2)
 	{
@@ -597,6 +650,7 @@ void APirateCharacter::AimButtonReleased()
 
 void APirateCharacter::ReloadButtonPressed()
 {
+	if (Combat2 && Combat2->bHoldingTheFlag) return;
 	if (bDisableGameplay) return;
 	if (Combat2)
 	{
@@ -608,12 +662,14 @@ void APirateCharacter::GrenadeButtonPressed()
 {
 	if (Combat2)
 	{
+		if (Combat2->bHoldingTheFlag) return;
 		Combat2->ThrowGrenade();
 	}
 }
 
 void APirateCharacter::Jump()
 {
+	if (Combat2 && Combat2->bHoldingTheFlag) return;
 	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
@@ -772,9 +828,7 @@ void APirateCharacter::PollInit()
 		PiratePlayerState = GetPlayerState<APiratePlayerState>();
 		if (PiratePlayerState)
 		{
-			PiratePlayerState->AddToScore(0.f);
-			PiratePlayerState->AddToDefeat(0);
-			SetTeamColor(PiratePlayerState->GetTeam());
+			OnPlayerStateInitialized();
 
 			AMainGameState* MainGameState = Cast<AMainGameState>(UGameplayStatics::GetGameState(this));
 
@@ -813,6 +867,7 @@ void APirateCharacter::EquipButtonPressed()
 	if (bDisableGameplay) return;
 	if (Combat2)
 	{
+		if (Combat2->bHoldingTheFlag) return;
 		if (Combat2->CombatState == ECombatState::ECS_Unonccupired) ServerEquipButtonPressed();
 		if (Combat2->ShouldSwapWeapon() && !HasAuthority() && Combat2->CombatState == ECombatState::ECS_Unonccupired && OverlappingWeapon == nullptr)
 		{
@@ -952,4 +1007,23 @@ bool APirateCharacter::IsLocallyReloading()
 {
 	if (Combat2 == nullptr) return false;
 	return Combat2->bLocallyReloading;
+}
+
+bool APirateCharacter::IsHoldingTheFlag()
+{
+	if (Combat2 == nullptr) return false;
+	return Combat2->bHoldingTheFlag;
+}
+
+ETeam APirateCharacter::GetTeam()
+{
+	PiratePlayerState = PiratePlayerState == nullptr ? GetPlayerState<APiratePlayerState>() : PiratePlayerState;
+	if (PiratePlayerState == nullptr) return ETeam::ET_NoTeam;
+	return PiratePlayerState->GetTeam();
+}
+
+void APirateCharacter::SetHoldingTheFlag(bool bHolding)
+{
+	if (Combat2 == nullptr) return;
+	Combat2->bHoldingTheFlag = bHolding;
 }
