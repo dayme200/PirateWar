@@ -80,6 +80,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_ShowTeamScores();
+
+	FString GetInfoText(const TArray<class APiratePlayerState*>& Players);
+	FString GetTeamsInfoText(class AMainGameState* MainGameState);
 	
 private:
 	UPROPERTY()

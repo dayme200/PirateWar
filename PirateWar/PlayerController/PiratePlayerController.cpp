@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PirateWar/HUD/PirateHUD.h"
 #include "PirateWar/HUD/Announcement.h"
+#include "PirateWar/Type/Announcement.h"
 #include "PirateWar/HUD/CharacterOverlay.h"
 #include "PirateWar/HUD/ReturnToMainMenu.h"
 #include "PirateWar/GameMode/MainGameMode.h"
@@ -158,6 +159,74 @@ void APiratePlayerController::OnRep_ShowTeamScores()
 	{
 		HideTeamScores();
 	}
+}
+
+FString APiratePlayerController::GetInfoText(const TArray<APiratePlayerState*>& Players)
+{
+	APiratePlayerState* PiratePlayerState = GetPlayerState<APiratePlayerState>();
+	if (PiratePlayerState == nullptr) return FString();
+	FString InfoTextString;
+	if (Players.Num() == 0)
+	{
+		InfoTextString = Announcement::ThereIsNoWinner;
+	}
+	else if (Players.Num() == 1 && Players[0] == PiratePlayerState)
+	{
+		InfoTextString = Announcement::YouAreTheWinner;
+	}
+	else if (Players.Num() == 1)
+	{
+		InfoTextString = FString::Printf(TEXT("Winner: \n%s"), *Players[0]->GetPlayerName());
+	}
+	else if (Players.Num() > 1)
+	{
+		InfoTextString = Announcement::PlayersTiedForTheWin;
+		InfoTextString.Append(FString("\n"));
+		for (auto TiedPlayer : Players)
+		{
+			InfoTextString.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
+		}
+	}
+
+	return InfoTextString;
+}
+
+FString APiratePlayerController::GetTeamsInfoText(AMainGameState* MainGameState)
+{
+	if (MainGameState == nullptr) return FString();
+	FString InfoTextString;
+
+	const int32 RedTeamScore = MainGameState->RedTeamScore;
+	const int32 BlueTeamScore = MainGameState->BlueTeamScore;
+
+	if (RedTeamScore == 0 && BlueTeamScore == 0)
+	{
+		InfoTextString = Announcement::ThereIsNoWinner;
+	}
+	else if (RedTeamScore == BlueTeamScore)
+	{
+		InfoTextString = FString::Printf(TEXT("%s\n"), *Announcement::TeamsTiedForTheWin);
+		InfoTextString.Append(Announcement::RedTeam);
+		InfoTextString.Append(TEXT("\n"));
+		InfoTextString.Append(Announcement::BlueTeam);
+		InfoTextString.Append(TEXT("\n"));
+	}
+	else if (RedTeamScore > BlueTeamScore)
+	{
+		InfoTextString = Announcement::RedTeamWins;
+		InfoTextString.Append(TEXT("\n"));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::RedTeam, RedTeamScore));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::BlueTeam, BlueTeamScore));
+	}
+	else if (BlueTeamScore > RedTeamScore)
+	{
+		InfoTextString = Announcement::BlueTeamWins;
+		InfoTextString.Append(TEXT("\n"));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::BlueTeam, BlueTeamScore));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::RedTeam, RedTeamScore));
+	}
+
+	return InfoTextString;
 }
 
 void APiratePlayerController::BroadcastElim(APlayerState* Attacker, APlayerState* Victim)
@@ -637,7 +706,7 @@ void APiratePlayerController::HandleCooldown()
 		if (bHUDValid)
 		{
 			PirateHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
-			FString AnnouncementText("New Match Starts In:");
+			FString AnnouncementText = Announcement::NewMatchStartsIn;
 			PirateHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 			
 			AMainGameState* MainGameState = Cast<AMainGameState>(UGameplayStatics::GetGameState(this));
@@ -645,27 +714,7 @@ void APiratePlayerController::HandleCooldown()
 			if (MainGameState && PiratePlayerState)
 			{
 				TArray<APiratePlayerState*> TopPlayers = MainGameState->TopScoringPlayers;
-				FString InfoTextString;
-				if (TopPlayers.Num() == 0)
-				{
-					InfoTextString = FString("There is no winner");
-				}
-				else if (TopPlayers.Num() == 1 && TopPlayers[0] == PiratePlayerState)
-				{
-					InfoTextString = FString("You are winner!");
-				}
-				else if (TopPlayers.Num() == 1)
-				{
-					InfoTextString = FString::Printf(TEXT("Winner: \n%s"), *TopPlayers[0]->GetPlayerName());
-				}
-				else if (TopPlayers.Num() > 1)
-				{
-					InfoTextString = FString("Players tied for the win:\n");
-					for (auto Tiedplayer : TopPlayers)
-					{
-						InfoTextString.Append(FString::Printf(TEXT("%s\n"), *Tiedplayer->GetPlayerName()));
-					}
-				}
+				FString InfoTextString = bShowTeamScores ? GetTeamsInfoText(MainGameState) : GetInfoText(TopPlayers);
 				PirateHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextString));
 			}
 		}
