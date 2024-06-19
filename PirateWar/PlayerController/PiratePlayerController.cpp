@@ -1,9 +1,13 @@
 #include "PiratePlayerController.h"
+
+#include "Components/EditableTextBox.h"
 #include "Components/Image.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/GameMode.h"
 #include "Components/ProgressBar.h"
+#include "Developer/Windows/LiveCoding/Private/External/LC_ClientUserCommandThread.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "PirateWar/HUD/PirateHUD.h"
 #include "PirateWar/HUD/Announcement.h"
@@ -15,7 +19,6 @@
 #include "PirateWar/Component/CombatComponent.h"
 #include "PirateWar/Character/PirateCharacter.h"
 #include "PirateWar/PlayerState/PiratePlayerState.h"
-
 
 void APiratePlayerController::BeginPlay()
 {
@@ -147,6 +150,58 @@ void APiratePlayerController::ShowReturnToMainMenu()
 			ReturnToMainMenu->MenuTearDown();
 		}
 	}
+}
+
+void APiratePlayerController::ChatButtonPressed()
+{
+	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+	bool bHUDValid = PirateHUD &&
+		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->Chat_ScrollBox &&
+		PirateHUD->CharacterOverlay->ChatInputBox;
+	
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(PirateHUD->GetChatInputTextObject());
+	SetInputMode(InputMode);
+}
+
+void APiratePlayerController::FocusGame()
+{
+	SetInputMode(FInputModeGameOnly());
+}
+
+void APiratePlayerController::SendMessage(const FText& Text)
+{
+	UGameInstance* MyGI = GetGameInstance<UGameInstance>();
+	if (MyGI)
+	{
+		FString UserName = MyGI->GetName();
+		FString Message = FString::Printf(TEXT("%s : %s"), *UserName, *Text.ToString());
+
+		CtoS_SendMessage(Message); // 서버에서 실행될 수 있도록 보낸다.
+	}
+}
+
+void APiratePlayerController::CtoS_SendMessage_Implementation(const FString& Message)
+{
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(GetPawn()->GetWorld(), APlayerController::StaticClass(), OutActors);
+	for (AActor* OutActor : OutActors)
+	{
+		APiratePlayerController* PC = Cast<APiratePlayerController>(OutActor);
+		if (PC)
+		{
+			PC->StoC_SendMessage(Message);
+		}
+	}
+}
+
+void APiratePlayerController::StoC_SendMessage_Implementation(const FString& Message)
+{
+	APirateHUD* HUD = GetHUD<APirateHUD>();
+	if (HUD == nullptr) return;
+
+	HUD->AddChatMessage(Message);
 }
 
 void APiratePlayerController::OnRep_ShowTeamScores()
@@ -632,6 +687,7 @@ void APiratePlayerController::SetupInputComponent()
 	if (InputComponent == nullptr) return;
 
 	InputComponent->BindAction("Quit", IE_Pressed, this, &APiratePlayerController::ShowReturnToMainMenu);
+	InputComponent->BindAction("Chat", IE_Pressed, this, &APiratePlayerController::ChatButtonPressed);
 }
 
 void APiratePlayerController::OnPossess(APawn* InPawn)

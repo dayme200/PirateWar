@@ -1,11 +1,15 @@
 #include "PirateHUD.h"
+#include "ChatMessage.h"
 #include "Announcement.h"
 #include "CharacterOverlay.h"
 #include "ElimAnnouncement.h"
+#include "Components/ScrollBox.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/HorizontalBox.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/EditableTextBox.h"
+#include "PirateWar/PlayerController/PiratePlayerController.h"
 
 void APirateHUD::BeginPlay()
 {
@@ -20,6 +24,27 @@ void APirateHUD::AddCharacterOverlay()
 		CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
 		CharacterOverlay->AddToViewport();
 	}
+}
+
+void APirateHUD::AddChatMessage(FString Msg)
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && ChatMessageClass)
+	{
+		ChatMessage = CreateWidget<UChatMessage>(PlayerController, ChatMessageClass);
+		ChatMessage->SetMessageText(Msg);
+		CharacterOverlay->Chat_ScrollBox->AddChild(ChatMessage);
+		CharacterOverlay->Chat_ScrollBox->ScrollToEnd();
+		if (CharacterOverlay->Chat_ScrollBox->GetChildrenCount() > 15)
+		{
+			CharacterOverlay->Chat_ScrollBox->RemoveChildAt(0);
+		}
+	}
+}
+
+TSharedPtr<SWidget> APirateHUD::GetChatInputTextObject()
+{
+	return CharacterOverlay->GetChatInputTextObject();
 }
 
 void APirateHUD::AddAnnouncement()

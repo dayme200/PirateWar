@@ -9,6 +9,8 @@ public class PirateWar : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore",
-			"EnhancedInput", "OnlineSubsystem", "OnlineSubsystemSteam", "Niagara", "MultiplayerSessions" });
+			"EnhancedInput", "OnlineSubsystem", "OnlineSubsystemSteam", "Niagara", "MultiplayerSessions", "UMG" });
+		
+		PrivateDependencyModuleNames.AddRange(new string[] {"Slate", "SlateCore"});
 	}
 }

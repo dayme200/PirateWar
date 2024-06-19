@@ -23,6 +23,8 @@ public:
 	void SetHUDAnnouncementCountDown(float CountDownTime);
 	void SetHUDGrenade(int32 Grenade);
 
+	UPROPERTY()
+	bool bIsChatting = false;
 	float SingleTripTime = 0.f;
 
 	FHighPingDelegate HighPingDelegate;
@@ -35,6 +37,16 @@ public:
 	void InitTeamScores();
 	void SetHUDRedTeamScore(int32 RedScore);
 	void SetHUDBlueTeamScore(int32 BlueScore);
+	
+	void ChatButtonPressed();
+	void FocusGame();
+	void SendMessage(const FText& Text);
+	
+	UFUNCTION(Server, Unreliable)
+	void CtoS_SendMessage(const FString& Message);
+
+	UFUNCTION(Client, Unreliable)
+	void StoC_SendMessage(const FString& Message);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -71,6 +83,8 @@ protected:
 	void CheckPing(float DeltaTime);
 
 	void ShowReturnToMainMenu();
+	
+	bool bIsFocus = false;
 
 	UFUNCTION(Client, Reliable)
 	void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim);
@@ -111,7 +125,7 @@ public:
 	void HandleCooldown();
 	UFUNCTION()
 	void OnRep_MatchState();
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class UCharacterOverlay* CharacterOverlay;
 	void PollInit();
 	

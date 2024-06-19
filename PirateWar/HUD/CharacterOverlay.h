@@ -10,6 +10,8 @@ class PIRATEWAR_API UCharacterOverlay : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	virtual void NativeConstruct() override;
+	
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HealthBar;
 
@@ -54,4 +56,18 @@ public:
 
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* HighPingAnimation;
+
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	class UScrollBox* Chat_ScrollBox;
+
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	class UEditableTextBox* ChatInputBox;
+
+	TSharedPtr<class SWidget> GetChatInputTextObject();
+
+	UFUNCTION(BlueprintCallable)
+	void CommitChatInputBox();
+
+	UPROPERTY()
+	FText Text;
 };

@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "Types/SlateEnums.h"
 #include "PirateHUD.generated.h"
 
 USTRUCT(BlueprintType)
@@ -32,6 +33,13 @@ public:
 	class UCharacterOverlay* CharacterOverlay;
 	void AddCharacterOverlay();
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> ChatMessageClass;
+	UPROPERTY()
+	class UChatMessage* ChatMessage;
+	void AddChatMessage(FString Msg = FString(""));
+	TSharedPtr<class SWidget> GetChatInputTextObject();
+
 	UPROPERTY(EditAnywhere, Category = Announcement)
 	TSubclassOf<class UUserWidget> AnnouncementClass;
 	UPROPERTY()
@@ -39,6 +47,7 @@ public:
 	void AddAnnouncement();
 
 	void AddElimAnnouncement(FString Attacker, FString Victim);
+	
 
 protected:
 	virtual void BeginPlay() override;
