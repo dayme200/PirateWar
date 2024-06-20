@@ -2,6 +2,7 @@
 #include "TimerManager.h"
 #include "Net/UnrealNetwork.h"
 #include "Camera/CameraComponent.h"
+#include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 #include "PirateWar/HUD/PirateHUD.h"
 #include "PirateWar/Weapon/Weapon.h"
@@ -10,6 +11,7 @@
 #include "PirateWar/Weapon/Projectile.h"
 #include "PirateWar/Character/PirateCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PirateWar/HUD/CharacterOverlay.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
 
 UCombatComponent::UCombatComponent()
@@ -152,6 +154,10 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 	UpdateCarriedAmmo();
 	PlayEquipWeaponSound(WeaponToEquip);
 	ReloadEmptyWeapon();
+	if (HUD && HUD->CharacterOverlay && WeaponToEquip->WeaponTexture)
+	{
+		HUD->CharacterOverlay->MainWeaponImg->SetBrushFromTexture(WeaponToEquip->WeaponTexture);
+	}
 }
 
 void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
@@ -162,6 +168,10 @@ void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
 	AttachActorToBack(WeaponToEquip);
 	PlayEquipWeaponSound(WeaponToEquip);
 	SecondaryWeapon->SetOwner(WeaponToEquip);
+	if (HUD && HUD->CharacterOverlay && WeaponToEquip->WeaponTexture)
+	{
+		HUD->CharacterOverlay->SubWeaponImg->SetBrushFromTexture(WeaponToEquip->WeaponTexture);
+	}
 }
 
 void UCombatComponent::DropEquippedWeapon()
@@ -273,6 +283,11 @@ void UCombatComponent::FinishSwap()
 
 void UCombatComponent::FinishSwapAttachWeapon()
 {
+	if (SecondaryWeapon->WeaponTexture && EquippedWeapon->WeaponTexture && HUD && HUD->CharacterOverlay)
+	{
+		HUD->CharacterOverlay->MainWeaponImg->SetBrushFromTexture(SecondaryWeapon->WeaponTexture);
+		HUD->CharacterOverlay->SubWeaponImg->SetBrushFromTexture(EquippedWeapon->WeaponTexture);
+	}
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	AttachActorToRightHand(EquippedWeapon);
 	EquippedWeapon->SetHUDAmmo();

@@ -81,6 +81,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	UTexture2D* CrosshairBottom;
 
+	UPROPERTY(EditAnywhere)
+	UTexture2D* WeaponTexture;
+
 	/*
 	 * Custom Depth
 	 */

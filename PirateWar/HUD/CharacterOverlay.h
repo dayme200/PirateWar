@@ -32,9 +32,6 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* BlueTeamScore;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* ScoreSpacerText;
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DefeatAmount;
@@ -54,9 +51,17 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* HighPingImage;
 
+	UPROPERTY(meta = (BindWidget))
+	UImage* MainWeaponImg;
+	UPROPERTY(meta = (BindWidget))
+	UImage* SubWeaponImg;
+
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* HighPingAnimation;
 
+	UPROPERTY(meta = (BindWidget))
+	class UBorder* ChatBorder;
+	
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	class UScrollBox* Chat_ScrollBox;
 

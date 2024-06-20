@@ -1,11 +1,13 @@
 #include "PiratePlayerController.h"
 
+#include "Components/Border.h"
 #include "Components/EditableTextBox.h"
 #include "Components/Image.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/GameMode.h"
 #include "Components/ProgressBar.h"
+#include "Components/ScrollBox.h"
 #include "Developer/Windows/LiveCoding/Private/External/LC_ClientUserCommandThread.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -157,8 +159,15 @@ void APiratePlayerController::ChatButtonPressed()
 	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
 	bool bHUDValid = PirateHUD &&
 		PirateHUD->CharacterOverlay &&
+		PirateHUD->CharacterOverlay->ChatBorder &&
 		PirateHUD->CharacterOverlay->Chat_ScrollBox &&
 		PirateHUD->CharacterOverlay->ChatInputBox;
+
+	if (bHUDValid)
+	{
+		PirateHUD->CharacterOverlay->ChatBorder->SetBrushColor(FLinearColor(.1f, .1f, .1f, .1f));
+		PirateHUD->CharacterOverlay->Chat_ScrollBox->WidgetBarStyle.NormalThumbImage.TintColor = FSlateColor(FLinearColor(1.f, 1.f, 1.f, .2f));
+	}
 	
 	FInputModeUIOnly InputMode;
 	InputMode.SetWidgetToFocus(PirateHUD->GetChatInputTextObject());
@@ -295,13 +304,11 @@ void APiratePlayerController::HideTeamScores()
 	bool bHUDValid = PirateHUD &&
 		PirateHUD->CharacterOverlay &&
 		PirateHUD->CharacterOverlay->RedTeamScore &&
-		PirateHUD->CharacterOverlay->BlueTeamScore &&
-		PirateHUD->CharacterOverlay->ScoreSpacerText;
+		PirateHUD->CharacterOverlay->BlueTeamScore;
 	if (bHUDValid)
 	{
 		PirateHUD->CharacterOverlay->RedTeamScore->SetText(FText());
 		PirateHUD->CharacterOverlay->BlueTeamScore->SetText(FText());
-		PirateHUD->CharacterOverlay->ScoreSpacerText->SetText(FText());
 	}
 }
 
@@ -311,15 +318,12 @@ void APiratePlayerController::InitTeamScores()
 	bool bHUDValid = PirateHUD &&
 		PirateHUD->CharacterOverlay &&
 		PirateHUD->CharacterOverlay->RedTeamScore &&
-		PirateHUD->CharacterOverlay->BlueTeamScore &&
-		PirateHUD->CharacterOverlay->ScoreSpacerText;
+		PirateHUD->CharacterOverlay->BlueTeamScore;
 	if (bHUDValid)
 	{
 		FString Zero("0");
-		FString Spacer("|");
 		PirateHUD->CharacterOverlay->RedTeamScore->SetText(FText::FromString(Zero));
 		PirateHUD->CharacterOverlay->BlueTeamScore->SetText(FText::FromString(Zero));
-		PirateHUD->CharacterOverlay->ScoreSpacerText->SetText(FText::FromString(Spacer));
 	}
 }
 
