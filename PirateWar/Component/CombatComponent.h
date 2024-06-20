@@ -161,6 +161,9 @@ private:
 	void FireShotgunWeapon();
 	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UCameraShakeBase> Shake;
+
 	bool CanFire();
 
 	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)

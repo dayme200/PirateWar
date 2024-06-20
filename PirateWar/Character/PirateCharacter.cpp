@@ -461,6 +461,7 @@ void APirateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APirateCharacter::Jump);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APirateCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APirateCharacter::DashButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APirateCharacter::FireButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &APirateCharacter::FireButtonReleased);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APirateCharacter::AimButtonPressed);
@@ -606,6 +607,80 @@ void APirateCharacter::CrouchButtonPressed()
 	if (bDisableGameplay) return;
 	if (bIsCrouched) UnCrouch();
 	else Crouch();
+}
+
+void APirateCharacter::DashButtonPressed()
+{
+	if (bDisableGameplay || bIsCrouched) return;
+	PlayDashMontage();
+}
+
+void APirateCharacter::PlayDashMontage()
+{
+	if (!bCanDash) return;
+	bCanDash = false;
+	ServerDash();
+	FTimerHandle DashTimer;
+	GetWorldTimerManager().SetTimer(
+		DashTimer,
+		this,
+		&APirateCharacter::DashTimerFinished,
+		DashDelay
+	);
+}
+
+void APirateCharacter::ServerDash_Implementation()
+{
+	MulticastDash();
+}
+
+void APirateCharacter::MulticastDash_Implementation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DashMontage)
+	{
+		AnimInstance->Montage_Play(DashMontage);
+		FName Section("Forward");
+		if (IsWeaponEquipped())
+		{
+			const FRotator CameraRot = GetBaseAimRotation();
+			const FRotator CharacterRot = UKismetMathLibrary::MakeRotFromX(GetVelocity());
+			const FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(CameraRot, CharacterRot);
+			const float Dir = DeltaRot.Yaw;
+			
+			if (-45 < Dir && Dir <= 45.f)
+			{
+				Section = FName("Forward");
+				LaunchCharacter(FVector(0.f, 0.f, 300.f) + GetActorForwardVector() * 1500.f, false, false);
+			}
+			else if (-135.f < Dir && Dir <= -45.f)
+			{
+				Section = FName("Right");
+				LaunchCharacter(FVector(0.f, 0.f, 300.f) + GetActorRightVector() * 1500.f, false, false);
+			}
+			else if (-180.f <= Dir && Dir <= -135.f)
+			{
+				Section = FName("Backward");
+				LaunchCharacter(FVector(0.f, 0.f, 300.f) + GetActorForwardVector() * -1500.f, false, false);
+			}
+			else if (135.f < Dir && Dir <= 180.f)
+			{
+				Section = FName("Backward");
+				LaunchCharacter(FVector(0.f, 0.f, 300.f) + GetActorForwardVector() * -1500.f, false, false);
+			}
+			else if (45.f < Dir && Dir <= 135.f)
+			{
+				Section = FName("Left");
+				LaunchCharacter(FVector(0.f, 0.f, 300.f) + GetActorRightVector() * -1500.f, false, false);
+			}
+		}
+		else
+		{
+			LaunchCharacter(FVector(0.f, 0.f, 300.f) + GetActorForwardVector() * 1500.f, false, false);
+		}
+		AnimInstance->Montage_JumpToSection(Section);
+		// 다른 머신도 되는지 확인, 2초 쿨타임
+	}
 }
 
 void APirateCharacter::FireButtonPressed()
@@ -791,6 +866,11 @@ void APirateCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 			MainGameMode->PlayerEliminated(this, PiratePlayerController, AttackerController);
 		}
 	}
+}
+
+void APirateCharacter::DashTimerFinished()
+{
+	bCanDash = true;
 }
 
 void APirateCharacter::UpdateHUDHealth()

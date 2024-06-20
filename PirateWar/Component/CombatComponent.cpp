@@ -512,6 +512,11 @@ void UCombatComponent::Fire()
 {
 	if (CanFire())
 	{
+		if (Shake && Character)
+		{
+			UGameplayStatics::PlayWorldCameraShake(this, Shake,	Character->GetActorLocation(),
+				0.f, 500.f, 1.f, false);
+		}
 		bCanFire = false;
 		if (EquippedWeapon)
 		{

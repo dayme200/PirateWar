@@ -32,6 +32,15 @@ public:
 	void PlayThrowGrenadeMontage();
 	void PlaySwapMontage();
 	
+	void PlayDashMontage();
+	UFUNCTION(Server, Reliable)
+	void ServerDash();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastDash();
+	bool bCanDash = true;
+	float DashDelay = 2.f;
+	void DashTimerFinished();
+	
 	void UpdateHUDHealth();
 	void UpdateHUDShield();
 
@@ -115,6 +124,7 @@ protected:
 	void LookUp(float Value);
 	void EquipButtonPressed();
 	void CrouchButtonPressed();
+	void DashButtonPressed();
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void AimButtonPressed();
@@ -186,6 +196,8 @@ private:
 	UAnimMontage* ThrowGrenadeMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* SwapMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* DashMontage;
 
 	void HideCameraIfCharacterClose();
 	float CameraThreshold = 200.f;
