@@ -5,6 +5,7 @@
 #include "PirateWar/Character/PirateCharacter.h"
 #include "PirateWar/PlayerState/PiratePlayerState.h"
 #include "PirateWar/PlayerController/PiratePlayerController.h"
+#include "PirateWar/Weapon/Weapon.h"
 
 namespace MatchState
 {
@@ -113,12 +114,13 @@ void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APirate
 	{
 		ElimmedCharacter->Elim(false);
 	}
+	APirateCharacter* AttackerCharacter = Cast<APirateCharacter>(AttackerController->GetCharacter());
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APiratePlayerController* PiratePlayer = Cast<APiratePlayerController>(*It);
-		if (PiratePlayer && AttackerPlayerState && VictimPlayerState)
+		if (PiratePlayer && AttackerPlayerState && VictimPlayerState && AttackerCharacter && AttackerCharacter->GetEquippedWeapon() && AttackerCharacter->GetEquippedWeapon()->WeaponTexture)
 		{
-			PiratePlayer->BroadcastElim(AttackerPlayerState, VictimPlayerState);
+			PiratePlayer->BroadcastElim(AttackerPlayerState, VictimPlayerState, AttackerCharacter->GetEquippedWeapon());
 		}
 	}
 }

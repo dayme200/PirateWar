@@ -21,6 +21,7 @@
 #include "PirateWar/Component/CombatComponent.h"
 #include "PirateWar/Character/PirateCharacter.h"
 #include "PirateWar/PlayerState/PiratePlayerState.h"
+#include "PirateWar/Weapon/Weapon.h"
 
 void APiratePlayerController::BeginPlay()
 {
@@ -293,9 +294,9 @@ FString APiratePlayerController::GetTeamsInfoText(AMainGameState* MainGameState)
 	return InfoTextString;
 }
 
-void APiratePlayerController::BroadcastElim(APlayerState* Attacker, APlayerState* Victim)
+void APiratePlayerController::BroadcastElim(APlayerState* Attacker, APlayerState* Victim, AWeapon* Weapon)
 {
-	ClientElimAnnouncement(Attacker, Victim);
+	ClientElimAnnouncement(Attacker, Victim, Weapon);
 }
 
 void APiratePlayerController::HideTeamScores()
@@ -353,35 +354,14 @@ void APiratePlayerController::SetHUDBlueTeamScore(int32 BlueScore)
 	}
 }
 
-void APiratePlayerController::ClientElimAnnouncement_Implementation(APlayerState* Attacker, APlayerState* Victim)
+void APiratePlayerController::ClientElimAnnouncement_Implementation(APlayerState* Attacker, APlayerState* Victim, AWeapon* Weapon)
 {
-	APlayerState* Self = GetPlayerState<APlayerState>();
-	if (Attacker && Victim && Self)
+	if (Attacker && Victim)
 	{
 		PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
 		if (PirateHUD)
 		{
-			if (Attacker == Self && Victim != Self)
-			{
-				PirateHUD->AddElimAnnouncement("You", Victim->GetPlayerName());
-				return;
-			}
-			if (Victim == Self && Attacker != Self)
-			{
-				PirateHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "you");
-				return;
-			}
-			if (Attacker == Victim && Attacker == Self)
-			{
-				PirateHUD->AddElimAnnouncement("You", "yourself");
-				return;
-			}
-			if (Attacker == Victim && Attacker != Self)
-			{
-				PirateHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "themselves");
-				return;
-			}
-			PirateHUD->AddElimAnnouncement(Attacker->GetPlayerName(), Victim->GetPlayerName());
+			PirateHUD->AddElimAnnouncement(Attacker->GetPlayerName(), Weapon->WeaponTexture, Victim->GetPlayerName());
 		}
 	}
 }

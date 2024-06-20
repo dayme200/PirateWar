@@ -46,7 +46,7 @@ public:
 	class UAnnouncement* Announcement;
 	void AddAnnouncement();
 
-	void AddElimAnnouncement(FString Attacker, FString Victim);
+	void AddElimAnnouncement(FString Attacker, UTexture2D* WeaponT, FString Victim);
 	
 
 protected:

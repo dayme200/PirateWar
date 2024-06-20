@@ -31,7 +31,7 @@ public:
 
 	virtual float GetServerTime();
 
-	void BroadcastElim(APlayerState* Attacker, APlayerState* Victim);
+	void BroadcastElim(APlayerState* Attacker, APlayerState* Victim, AWeapon* Weapon);
 
 	void HideTeamScores();
 	void InitTeamScores();
@@ -87,7 +87,7 @@ protected:
 	bool bIsFocus = false;
 
 	UFUNCTION(Client, Reliable)
-	void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim);
+	void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim, AWeapon* Weapon);
 
 	UPROPERTY(ReplicatedUsing = OnRep_ShowTeamScores)
 	bool bShowTeamScores = false;

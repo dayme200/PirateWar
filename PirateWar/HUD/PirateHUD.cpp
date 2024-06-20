@@ -57,7 +57,7 @@ void APirateHUD::AddAnnouncement()
 	}
 }
 
-void APirateHUD::AddElimAnnouncement(FString Attacker, FString Victim)
+void APirateHUD::AddElimAnnouncement(FString Attacker, UTexture2D* WeaponT, FString Victim)
 {
 	OwningPlayer = OwningPlayer == nullptr ? GetOwningPlayerController() : OwningPlayer;
 	if (OwningPlayer && ElimAnnouncementClass)
@@ -65,7 +65,7 @@ void APirateHUD::AddElimAnnouncement(FString Attacker, FString Victim)
 		UElimAnnouncement* ElimAnnouncementWidget = CreateWidget<UElimAnnouncement>(OwningPlayer, ElimAnnouncementClass);
 		if (ElimAnnouncementWidget)
 		{
-			ElimAnnouncementWidget->SetElimAnnouncementText(Attacker, Victim);
+			ElimAnnouncementWidget->SetElimAnnouncementText(Attacker, WeaponT, Victim);
 			ElimAnnouncementWidget->AddToViewport();
 
 			for (UElimAnnouncement* Msg : ElimMessages)

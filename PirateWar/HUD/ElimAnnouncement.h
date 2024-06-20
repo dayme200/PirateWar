@@ -10,11 +10,17 @@ class PIRATEWAR_API UElimAnnouncement : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void SetElimAnnouncementText(FString AttackerName, FString VictimName);
+	void SetElimAnnouncementText(FString AttackerName, class UTexture2D* WeaponT, FString VictimName);
 
 	UPROPERTY(meta = (BindWidget))
 	class UHorizontalBox* AnnouncementBox;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* AnnouncementText;
+	class UTextBlock* AttackerText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* WeaponTexture;
+	
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ElimerText;
 };

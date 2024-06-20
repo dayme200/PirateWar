@@ -1,11 +1,13 @@
 #include "ElimAnnouncement.h"
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 
-void UElimAnnouncement::SetElimAnnouncementText(FString AttackerName, FString VictimName)
+void UElimAnnouncement::SetElimAnnouncementText(FString AttackerName, class UTexture2D* WeaponT, FString VictimName)
 {
-	FString ElimAnnouncementText = FString::Printf(TEXT("%s elimmed %s!"), *AttackerName, *VictimName);
-	if (AnnouncementText)
+	if (AttackerText && WeaponTexture && ElimerText)
 	{
-		AnnouncementText->SetText(FText::FromString(ElimAnnouncementText));
+		AttackerText->SetText(FText::FromString(AttackerName));
+		WeaponTexture->SetBrushFromTexture(WeaponT);
+		ElimerText->SetText(FText::FromString(VictimName));
 	}
 }
