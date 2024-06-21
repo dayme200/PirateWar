@@ -531,13 +531,28 @@ void APirateCharacter::PlayFireMontage(bool bAiming)
 
 void APirateCharacter::PlayHitReactMontage()
 {
-	if (Combat2 == nullptr || Combat2->EquippedWeapon == nullptr) return;
+	if (Combat2 == nullptr) return;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
 	{
 		AnimInstance->Montage_Play(HitReactMontage);	
-		//TODO Change Section
 		FName SectionName = FName("FromFront");
+		int Rand = FMath::RandRange(0, 3);
+		switch (Rand)
+		{
+		case 0:
+			SectionName = FName("FromFront");
+			break;
+		case 1:
+			SectionName = FName("FromLeft");
+			break;
+		case 2:
+			SectionName = FName("FromRight");
+			break;
+		case 3:
+			SectionName = FName("FromBack");
+			break;
+		}
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
@@ -566,6 +581,30 @@ void APirateCharacter::PlaySwapMontage()
 	if (AnimInstance && SwapMontage)
 	{
 		AnimInstance->Montage_Play(SwapMontage);
+	}
+}
+
+void APirateCharacter::PlayPunchMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && PunchMontage)
+	{
+		AnimInstance->Montage_Play(PunchMontage);
+		FName Section("One");
+		int Rand = FMath::RandRange(0, 2);
+		switch (Rand)
+		{
+		case 0:
+			Section = FName("One");
+			break;
+		case 1:
+			Section = FName("Two");
+			break;
+		case 2:
+			Section = FName("Three");
+			break;
+		}
+		AnimInstance->Montage_JumpToSection(Section);
 	}
 }
 

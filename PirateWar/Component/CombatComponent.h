@@ -67,6 +67,19 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 
+	void LocalPunch();
+	UFUNCTION(Server, Reliable)
+	void ServerPunch();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPunch();
+
+	UPROPERTY(EditAnywhere)
+	bool bCanPunch = true;
+	UPROPERTY(EditAnywhere)
+	float PunchCoolTime = .25f;
+	void PunchCoolTimeFinished();
+	FTimerHandle PunchTimerHandle;
+
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerShotgunFire(const TArray<FVector_NetQuantize>& TraceHitTargets, float FireDelay);
 	UFUNCTION(NetMulticast, Reliable)

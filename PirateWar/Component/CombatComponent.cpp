@@ -1,4 +1,6 @@
 #include "CombatComponent.h"
+
+#include "CollisionDebugDrawingPublic.h"
 #include "TimerManager.h"
 #include "Net/UnrealNetwork.h"
 #include "Camera/CameraComponent.h"
@@ -525,6 +527,19 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 
 void UCombatComponent::Fire()
 {
+	if (EquippedWeapon == nullptr && bCanPunch)
+	{
+		bCanPunch = false;
+		LocalPunch();
+		ServerPunch();
+		Character->GetWorld()->GetTimerManager().SetTimer(
+			PunchTimerHandle,
+			this,
+			&UCombatComponent::PunchCoolTimeFinished,
+			PunchCoolTime
+		);
+		return;
+	}
 	if (CanFire())
 	{
 		if (Shake && Character)
@@ -704,6 +719,11 @@ void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuant
 	}
 }
 
+void UCombatComponent::PunchCoolTimeFinished()
+{
+	bCanPunch = true;
+}
+
 void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& TraceHitTargets)
 {
 	AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
@@ -834,6 +854,56 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 			HUD->SetHUDPackage(HUDPackage);
 		}
 	}
+}
+
+void UCombatComponent::LocalPunch()
+{
+	if (Character)
+	{
+		Character->PlayPunchMontage();
+	}
+}
+
+void UCombatComponent::MulticastPunch_Implementation()
+{
+	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
+	LocalPunch();
+}
+
+void UCombatComponent::ServerPunch_Implementation()
+{
+	TArray<FHitResult> HitResults;
+	bool bResult = GetWorld()->SweepMultiByChannel
+	(
+		HitResults,
+		Character->GetActorLocation(),
+		Character->GetActorLocation() + Character->GetActorForwardVector() * 50.f + FVector(0.f,0.f,40.f),
+		FQuat::Identity,
+		ECollisionChannel::ECC_Visibility,
+		FCollisionShape::MakeSphere(20.0f)
+	);
+	
+	if (bResult)
+	{
+		for (auto Hitted : HitResults)
+		{
+			if (Hitted.GetActor() && Hitted.GetActor()->Implements<UInteractWithCrosshairInterface>())
+			{
+				if (Hitted.GetActor() != Character)
+				{
+					UGameplayStatics::ApplyDamage(
+						Hitted.GetActor(),
+						10.f,
+						Character->GetController(),
+						Character,
+						UDamageType::StaticClass()
+					);
+				}
+			}
+		}
+		
+	}
+	MulticastPunch();
 }
 
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget, float FireDelay)

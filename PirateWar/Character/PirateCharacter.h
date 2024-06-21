@@ -31,6 +31,7 @@ public:
 	void PlayElimMontage();
 	void PlayThrowGrenadeMontage();
 	void PlaySwapMontage();
+	void PlayPunchMontage();
 	
 	void PlayDashMontage();
 	UFUNCTION(Server, Reliable)
@@ -198,6 +199,8 @@ private:
 	UAnimMontage* SwapMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* DashMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* PunchMontage;
 
 	void HideCameraIfCharacterClose();
 	float CameraThreshold = 200.f;
