@@ -32,6 +32,7 @@ public:
 	virtual float GetServerTime();
 
 	void BroadcastElim(APlayerState* Attacker, APlayerState* Victim, AWeapon* Weapon);
+	void BroadcastElimPunch(APlayerState* Attacker, APlayerState* Victim);
 
 	void HideTeamScores();
 	void InitTeamScores();
@@ -47,6 +48,9 @@ public:
 
 	UFUNCTION(Client, Unreliable)
 	void StoC_SendMessage(const FString& Message);
+
+	UPROPERTY(EditAnywhere)
+	UTexture2D* PunchTexture;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -88,6 +92,8 @@ protected:
 
 	UFUNCTION(Client, Reliable)
 	void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim, AWeapon* Weapon);
+	UFUNCTION(Client, Reliable)
+	void ClientElimPunchAnnouncement(APlayerState* Attacker, APlayerState* Victim);
 
 	UPROPERTY(ReplicatedUsing = OnRep_ShowTeamScores)
 	bool bShowTeamScores = false;

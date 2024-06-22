@@ -718,7 +718,6 @@ void APirateCharacter::MulticastDash_Implementation()
 			LaunchCharacter(FVector(0.f, 0.f, 300.f) + GetActorForwardVector() * 1500.f, false, false);
 		}
 		AnimInstance->Montage_JumpToSection(Section);
-		// 다른 머신도 되는지 확인, 2초 쿨타임
 	}
 }
 

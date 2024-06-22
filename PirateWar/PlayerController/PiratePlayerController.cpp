@@ -9,7 +9,6 @@
 #include "Components/ProgressBar.h"
 #include "Components/ScrollBox.h"
 #include "Developer/Windows/LiveCoding/Private/External/LC_ClientUserCommandThread.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "PirateWar/HUD/PirateHUD.h"
 #include "PirateWar/HUD/Announcement.h"
@@ -35,9 +34,9 @@ void APiratePlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	PollInit();
 	SetHUDTime();
 	CheckTimeSync(DeltaTime);
-	PollInit();
 	CheckPing(DeltaTime);
 }
 
@@ -299,6 +298,11 @@ void APiratePlayerController::BroadcastElim(APlayerState* Attacker, APlayerState
 	ClientElimAnnouncement(Attacker, Victim, Weapon);
 }
 
+void APiratePlayerController::BroadcastElimPunch(APlayerState* Attacker, APlayerState* Victim)
+{
+	ClientElimPunchAnnouncement(Attacker, Victim);
+}
+
 void APiratePlayerController::HideTeamScores()
 {
 	PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
@@ -362,6 +366,18 @@ void APiratePlayerController::ClientElimAnnouncement_Implementation(APlayerState
 		if (PirateHUD)
 		{
 			PirateHUD->AddElimAnnouncement(Attacker->GetPlayerName(), Weapon->WeaponTexture, Victim->GetPlayerName());
+		}
+	}
+}
+
+void APiratePlayerController::ClientElimPunchAnnouncement_Implementation(APlayerState* Attacker, APlayerState* Victim)
+{
+	if (Attacker && Victim && PunchTexture)
+	{
+		PirateHUD = PirateHUD == nullptr ? Cast<APirateHUD>(GetHUD()) : PirateHUD;
+		if (PirateHUD)
+		{
+			PirateHUD->AddElimAnnouncement(Attacker->GetPlayerName(), PunchTexture, Victim->GetPlayerName());
 		}
 	}
 }
@@ -643,7 +659,8 @@ void APiratePlayerController::PollInit()
 				APirateCharacter* PirateCharacter = Cast<APirateCharacter>(GetPawn());
 				if (PirateCharacter && PirateCharacter->GetCombat()->GetGrenade())
 				{
-					if (bInitializeGrenade) SetHUDGrenade(PirateCharacter->GetCombat()->GetGrenade());
+					SetHUDGrenade(PirateCharacter->GetCombat()->GetGrenade());
+					// if (bInitializeGrenade) SetHUDGrenade(PirateCharacter->GetCombat()->GetGrenade());
 				}
 			}
 		}

@@ -217,11 +217,11 @@ private:
 	void UpdateShotgunAmmoValues();
 
 	UPROPERTY(ReplicatedUsing = OnRep_Grenade)
-	int32 Grenade = 4;
+	int32 Grenade = 3;
 	UFUNCTION()
 	void OnRep_Grenade();
 	UPROPERTY(EditAnywhere)
-	int32 MaxGrenade = 4;
+	int32 MaxGrenade = 3;
 	void UpdateHUDGrenade();
 
 	UPROPERTY(ReplicatedUsing = OnRep_HoldingTheFlag)

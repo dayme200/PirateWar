@@ -118,9 +118,16 @@ void AMainGameMode::PlayerEliminated(APirateCharacter* ElimmedCharacter, APirate
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APiratePlayerController* PiratePlayer = Cast<APiratePlayerController>(*It);
-		if (PiratePlayer && AttackerPlayerState && VictimPlayerState && AttackerCharacter && AttackerCharacter->GetEquippedWeapon() && AttackerCharacter->GetEquippedWeapon()->WeaponTexture)
+		if (PiratePlayer && AttackerPlayerState && VictimPlayerState && AttackerCharacter)
 		{
-			PiratePlayer->BroadcastElim(AttackerPlayerState, VictimPlayerState, AttackerCharacter->GetEquippedWeapon());
+			if (AttackerCharacter->GetEquippedWeapon() && AttackerCharacter->GetEquippedWeapon()->WeaponTexture)
+			{
+				PiratePlayer->BroadcastElim(AttackerPlayerState, VictimPlayerState, AttackerCharacter->GetEquippedWeapon());
+			}
+			else
+			{
+				PiratePlayer->BroadcastElimPunch(AttackerPlayerState, VictimPlayerState);
+			}
 		}
 	}
 }
